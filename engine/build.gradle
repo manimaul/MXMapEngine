@@ -1,0 +1,42 @@
+apply plugin: 'com.android.library'
+apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-android-extensions'
+
+android {
+    compileSdkVersion useSdk.toInteger()
+
+    defaultConfig {
+        minSdkVersion minSdk.toInteger()
+        targetSdkVersion useSdk.toInteger()
+        versionCode 1
+        versionName "1.0"
+
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        externalNativeBuild {
+            cmake {
+                cppFlags "-std=c++14 -frtti -fexceptions"
+            }
+        }
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+    externalNativeBuild {
+        cmake {
+            path "CMakeLists.txt"
+        }
+    }
+}
+
+dependencies {
+    implementation group: 'org.jetbrains.kotlin', name: 'kotlin-stdlib-jdk7', version: kotlinVersion
+    implementation group: 'com.android.support', name: 'appcompat-v7', version: androidSupportVersion
+
+    testImplementation 'junit:junit:4.12'
+    androidTestImplementation group: 'com.android.support.test', name: 'runner', version: testRunnerVersion
+    androidTestImplementation group: 'com.android.support.test.espresso', name: 'espresso-core', version: espressoVersion
+}
