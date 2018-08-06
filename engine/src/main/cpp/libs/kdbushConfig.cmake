@@ -1,0 +1,6 @@
+cmake_minimum_required(VERSION 3.4.1)
+set(kdbush_DIR ${CMAKE_CURRENT_LIST_DIR})
+set(KDBUSH_SRC_DIR "${CMAKE_CURRENT_LIST_DIR}/headers/kdbush/0.1.1-1/include")
+file(GLOB SOURCE_SET "${KDBUSH_SRC_DIR}/*.hpp")
+add_library(kdbush STATIC ${SOURCE_SET})
+target_include_directories(kdbush PUBLIC ${KDBUSH_SRC_DIR})
