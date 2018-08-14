@@ -14,6 +14,4 @@ class MainActivity : AppCompatActivity() {
     // Example of a call to a native method
     sample_text.text = MXEngine.stringFromJni()
   }
-
-
 }
