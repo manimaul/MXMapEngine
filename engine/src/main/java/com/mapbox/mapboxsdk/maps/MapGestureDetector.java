@@ -19,10 +19,6 @@ import com.mapbox.android.gestures.RotateGestureDetector;
 import com.mapbox.android.gestures.ShoveGestureDetector;
 import com.mapbox.android.gestures.StandardGestureDetector;
 import com.mapbox.android.gestures.StandardScaleGestureDetector;
-import com.mapbox.android.telemetry.Event;
-import com.mapbox.android.telemetry.MapEventFactory;
-import com.mapbox.android.telemetry.MapState;
-import com.mapbox.android.telemetry.MapboxTelemetry;
 import com.mapbox.mapboxsdk.R;
 import com.mapbox.mapboxsdk.camera.CameraPosition;
 import com.mapbox.mapboxsdk.constants.MapboxConstants;
@@ -346,8 +342,6 @@ final class MapGestureDetector {
         notifyOnMapClickListeners(tapPoint);
       }
 
-      sendTelemetryEvent(Telemetry.SINGLE_TAP, new PointF(motionEvent.getX(), motionEvent.getY()));
-
       return true;
     }
 
@@ -376,8 +370,6 @@ final class MapGestureDetector {
         }
 
         zoomInAnimated(zoomFocalPoint, false);
-
-        sendTelemetryEvent(Telemetry.DOUBLE_TAP, new PointF(motionEvent.getX(), motionEvent.getY()));
 
         return true;
       }
@@ -439,7 +431,6 @@ final class MapGestureDetector {
       }
 
       transform.cancelTransitions();
-      sendTelemetryEvent(Telemetry.PAN, detector.getFocalPoint());
       notifyOnMoveBeginListeners(detector);
       return true;
     }
@@ -503,8 +494,6 @@ final class MapGestureDetector {
 
       // setting focalPoint in #onScaleBegin() as well, because #onScale() might not get called before #onScaleEnd()
       setScaleFocalPoint(detector);
-
-      sendTelemetryEvent(Telemetry.PINCH, scaleFocalPoint);
 
       notifyOnScaleBeginListeners(detector);
 
@@ -625,8 +614,6 @@ final class MapGestureDetector {
       // setting in #onRotateBegin() as well, because #onRotate() might not get called before #onRotateEnd()
       setRotateFocalPoint(detector);
 
-      sendTelemetryEvent(Telemetry.ROTATION, rotateFocalPoint);
-
       notifyOnRotateBeginListeners(detector);
 
       return true;
@@ -742,8 +729,6 @@ final class MapGestureDetector {
 
       transform.cancelTransitions();
 
-      sendTelemetryEvent(Telemetry.PITCH, detector.getFocalPoint());
-
       // disabling move gesture during shove
       gesturesManager.getMoveGestureDetector().setEnabled(false);
 
@@ -790,8 +775,6 @@ final class MapGestureDetector {
 
       transform.cancelTransitions();
       cameraChangeDispatcher.onCameraMoveStarted(REASON_API_GESTURE);
-
-      sendTelemetryEvent(Telemetry.TWO_FINGER_TAP, detector.getFocalPoint());
 
       PointF zoomFocalPoint;
       // Single finger double tap
@@ -879,21 +862,6 @@ final class MapGestureDetector {
       scaleAnimator.start();
     } else {
       scheduleAnimator(scaleAnimator);
-    }
-  }
-
-  private void sendTelemetryEvent(String eventType, PointF focalPoint) {
-    CameraPosition cameraPosition = transform.getCameraPosition();
-    if (cameraPosition != null) {
-      double zoom = cameraPosition.zoom;
-      if (isZoomValid(zoom)) {
-        MapboxTelemetry telemetry = Telemetry.obtainTelemetry();
-        MapEventFactory mapEventFactory = new MapEventFactory();
-        LatLng latLng = projection.fromScreenLocation(focalPoint);
-        MapState state = new MapState(latLng.getLatitude(), latLng.getLongitude(), zoom);
-        state.setGesture(eventType);
-        telemetry.push(mapEventFactory.createMapGestureEvent(Event.Type.MAP_CLICK, state));
-      }
     }
   }
 

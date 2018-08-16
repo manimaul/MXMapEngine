@@ -51,19 +51,8 @@ dependencies {
     implementation ('com.mapbox.mapboxsdk:mapbox-android-gestures:0.2.0')
     implementation 'com.mapbox.mapboxsdk:mapbox-sdk-geojson:3.3.0'
     implementation 'com.mapbox.mapboxsdk:mapbox-sdk-services:3.3.0'
-    implementation ('com.mapbox.mapboxsdk:mapbox-android-telemetry:3.1.4') {
-        exclude group: 'android.arch.lifecycle', module: 'livedata-core'
-        exclude group: 'android.arch.lifecycle', module: 'viewmodel'
-        exclude group: 'android.arch.lifecycle' , module: 'runtime'
-        exclude group: 'android.arch.core', module: 'runtime'
-    }
     implementation 'com.squareup.okhttp3:okhttp:3.10.0'
 
-    implementation 'android.arch.lifecycle:livedata-core:1.1.1'
-    implementation 'android.arch.lifecycle:extensions:1.1.1'
-    implementation 'android.arch.core:runtime:1.1.1'
-    implementation 'android.arch.lifecycle:runtime:1.1.1'
-    implementation 'android.arch.core:common:1.1.1'
     implementation "com.android.support:support-annotations:${androidSupportVersion}"
     implementation "com.android.support:support-fragment:${androidSupportVersion}"
     implementation "com.android.support:design:${androidSupportVersion}"
