@@ -53,7 +53,7 @@ find_library( # Sets the name of the path variable.
               log )
 
 target_link_libraries(native-lib
-        #PRIVATE nunicode
+        #PRIVATE nunicode todo: (WK)
         PUBLIC -llog
         PUBLIC -landroid
         PUBLIC -ljnigraphics
