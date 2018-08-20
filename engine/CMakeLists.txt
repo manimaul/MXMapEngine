@@ -32,12 +32,16 @@ inc_header_lib(wagyu:0.4.3)
 set(mbgl_DIR ${LIB_DIR})
 find_package(mbgl REQUIRED)
 
+# icu
+set(icu_DIR ${LIB_DIR})
+find_package(icu REQUIRED)
+
 # sqlite
 set(sqlite_DIR ${LIB_DIR})
 find_package(sqlite REQUIRED)
 
 add_library( # Sets the name of the library.
-             native-lib
+             mapbox-gl
 
              # Sets the library as a shared library.
              SHARED
@@ -52,8 +56,12 @@ find_library( # Sets the name of the path variable.
               # you want CMake to locate.
               log )
 
-target_link_libraries(native-lib
+add_dependencies(icu mapbox-gl)
+
+target_link_libraries(mapbox-gl
         #PRIVATE nunicode todo: (WK)
+        #PRIVATE mbgl
+        #PRIVATE icu
         PUBLIC -llog
         PUBLIC -landroid
         PUBLIC -ljnigraphics
