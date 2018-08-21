@@ -36,18 +36,7 @@ find_package(icu REQUIRED)
 set(mbgl_DIR ${LIB_DIR})
 find_package(mbgl REQUIRED)
 
-# sqlite
-set(sqlite_DIR ${LIB_DIR})
-find_package(sqlite REQUIRED)
-
-add_library( # Sets the name of the library.
-             mapbox-gl
-
-             # Sets the library as a shared library.
-             SHARED
-
-             # Provides a relative path to your source file(s).
-             src/main/cpp/native-lib.cpp )
+add_library(mapbox-gl SHARED src/main/cpp/native-lib.cpp )
 
 find_library(log-lib log)
 
