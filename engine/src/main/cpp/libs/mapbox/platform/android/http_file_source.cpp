@@ -61,7 +61,7 @@ void RegisterNativeHTTPRequest(jni::JNIEnv& env) {
 
     #define METHOD(MethodPtr, name) jni::MakeNativePeerMethod<decltype(MethodPtr), (MethodPtr)>(name)
 
-    jni::RegisterNativePeer<HTTPRequest>(env, HTTPRequest::javaClass, "mNativePtr",
+    jni::RegisterNativePeer<HTTPRequest>(env, HTTPRequest::javaClass, "nativePtr",
         METHOD(&HTTPRequest::onFailure, "nativeOnFailure"),
         METHOD(&HTTPRequest::onResponse, "nativeOnResponse"));
 }
@@ -117,7 +117,9 @@ void HTTPRequest::onResponse(jni::JNIEnv& env, int code,
     }
 
     if (cacheControl) {
-        response.expires = http::CacheControl::parse(jni::Make<std::string>(env, cacheControl).c_str()).toTimePoint();
+        const auto cc = http::CacheControl::parse(jni::Make<std::string>(env, cacheControl).c_str());
+        response.expires = cc.toTimePoint();
+        response.mustRevalidate = cc.mustRevalidate;
     }
 
     if (expires) {

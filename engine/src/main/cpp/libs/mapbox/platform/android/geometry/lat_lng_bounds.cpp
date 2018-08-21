@@ -9,34 +9,17 @@ jni::Object<LatLngBounds> LatLngBounds::New(jni::JNIEnv& env, mbgl::LatLngBounds
 }
 
 mbgl::LatLngBounds LatLngBounds::getLatLngBounds(jni::JNIEnv& env, jni::Object<LatLngBounds> bounds) {
-    static auto swLat = LatLngBounds::javaClass.GetField<jni::jdouble>(env, "mLatSouth");
-    static auto swLon = LatLngBounds::javaClass.GetField<jni::jdouble>(env, "mLonWest");
-    static auto neLat = LatLngBounds::javaClass.GetField<jni::jdouble>(env, "mLatNorth");
-    static auto neLon = LatLngBounds::javaClass.GetField<jni::jdouble>(env, "mLonEast");
-    return mbgl::LatLngBounds::hull(
-        { bounds.Get(env, swLat), bounds.Get(env, swLon) },
-        { bounds.Get(env, neLat), bounds.Get(env, neLon) }
-    );
-}
+    static auto swLatField = LatLngBounds::javaClass.GetField<jni::jdouble>(env, "latitudeSouth");
+    static auto swLonField = LatLngBounds::javaClass.GetField<jni::jdouble>(env, "longitudeWest");
+    static auto neLatField = LatLngBounds::javaClass.GetField<jni::jdouble>(env, "latitudeNorth");
+    static auto neLonField = LatLngBounds::javaClass.GetField<jni::jdouble>(env, "longitudeEast");
 
-void LatLngBounds::setLatitudeNorth(jni::JNIEnv& env, jni::Object<LatLngBounds> bounds, double value) {
-    static auto field = LatLngBounds::javaClass.GetField<double>(env, "mLatNorth");
-    bounds.Set(env, field, value);
-}
+    mbgl::LatLng sw = { bounds.Get(env, swLatField), bounds.Get(env, swLonField) };
+    mbgl::LatLng ne = { bounds.Get(env, neLatField), bounds.Get(env, neLonField) };
 
-void LatLngBounds::setLatitudeSouth(jni::JNIEnv& env, jni::Object<LatLngBounds> bounds, double value) {
-    static auto field = LatLngBounds::javaClass.GetField<double>(env, "mLatSouth");
-    bounds.Set(env, field, value);
-}
+    sw.unwrapForShortestPath(ne);
 
-void LatLngBounds::setLongitudeEast(jni::JNIEnv& env, jni::Object<LatLngBounds> bounds, double value) {
-    static auto field = LatLngBounds::javaClass.GetField<double>(env, "mLonEast");
-    bounds.Set(env, field, value);
-}
-
-void LatLngBounds::setLongitudeWest(jni::JNIEnv& env, jni::Object<LatLngBounds> bounds, double value) {
-    static auto field = LatLngBounds::javaClass.GetField<double>(env, "mLonWest");
-    bounds.Set(env, field, value);
+    return mbgl::LatLngBounds::hull(sw, ne);
 }
 
 void LatLngBounds::registerNative(jni::JNIEnv& env) {

@@ -18,11 +18,14 @@ public:
 
     RasterSource(jni::JNIEnv&, jni::String, jni::Object<>, jni::jint);
 
-    RasterSource(mbgl::Map&, mbgl::style::RasterSource&);
+    RasterSource(jni::JNIEnv&, mbgl::style::Source&, AndroidRendererFrontend&);
 
     ~RasterSource();
 
-    jni::jobject* createJavaPeer(jni::JNIEnv&);
+    jni::String getURL(jni::JNIEnv&);
+
+private:
+    jni::Object<Source> createJavaPeer(jni::JNIEnv&);
 
 }; // class RasterSource
 

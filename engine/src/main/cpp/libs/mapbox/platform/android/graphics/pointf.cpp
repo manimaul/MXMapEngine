@@ -1,3 +1,4 @@
+#include <mbgl/util/geo.hpp>
 #include "pointf.hpp"
 
 namespace mbgl {
@@ -8,14 +9,10 @@ jni::Object<PointF> PointF::New(jni::JNIEnv& env, float x, float y) {
     return PointF::javaClass.New(env, constructor, x, y);
 }
 
-void PointF::setX(jni::JNIEnv& env, jni::Object<PointF> jPointF, float value) {
-    static auto field = PointF::javaClass.GetField<float>(env, "x");
-    jPointF.Set(env, field, value);
-}
-
-void PointF::setY(jni::JNIEnv& env, jni::Object<PointF> jPointF, float value) {
-    static auto field = PointF::javaClass.GetField<float>(env, "y");
-    jPointF.Set(env, field, value);
+mbgl::ScreenCoordinate PointF::getScreenCoordinate(jni::JNIEnv& env, jni::Object<PointF> point) {
+    static auto xField = PointF::javaClass.GetField<jni::jfloat>(env, "x");
+    static auto yField = PointF::javaClass.GetField<jni::jfloat>(env, "y");
+    return mbgl::ScreenCoordinate{point.Get(env, xField), point.Get(env, yField)};
 }
 
 void PointF::registerNative(jni::JNIEnv& env) {

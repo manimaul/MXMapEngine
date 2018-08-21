@@ -1,7 +1,8 @@
 #pragma once
 
-#include <mbgl/style/property_value.hpp>
+#include <mbgl/style/color_ramp_property_value.hpp>
 #include <mbgl/style/data_driven_property_value.hpp>
+#include <mbgl/style/property_value.hpp>
 #include "../../conversion/conversion.hpp"
 #include "../../conversion/constant.hpp"
 #include "types.hpp"
@@ -30,15 +31,15 @@ public:
     }
 
     jni::jobject* operator()(const mbgl::style::CameraFunction<T> &value) const {
-        return *convert<jni::jobject*, mbgl::style::CameraFunction<T>>(env, value);
+        return *convert<jni::Object<android::gson::JsonElement>, mbgl::style::CameraFunction<T>>(env, value);
     }
 
     jni::jobject* operator()(const mbgl::style::SourceFunction<T> &value) const {
-        return *convert<jni::jobject*, mbgl::style::SourceFunction<T>>(env, value);
+        return *convert<jni::Object<android::gson::JsonElement>, mbgl::style::SourceFunction<T>>(env, value);
     }
 
     jni::jobject* operator()(const mbgl::style::CompositeFunction<T> &value) const {
-      return *convert<jni::jobject*, mbgl::style::CompositeFunction<T>>(env, value);
+        return *convert<jni::Object<android::gson::JsonElement>, mbgl::style::CompositeFunction<T>>(env, value);
     }
 
 private:
@@ -67,6 +68,18 @@ struct Converter<jni::jobject*, mbgl::style::DataDrivenPropertyValue<T>> {
     Result<jni::jobject*> operator()(jni::JNIEnv& env, const mbgl::style::DataDrivenPropertyValue<T>& value) const {
         PropertyValueEvaluator<T> evaluator(env);
         return value.evaluate(evaluator);
+    }
+};
+
+/**
+ * Convert core heat map color property value to java
+ */
+template <>
+struct Converter<jni::jobject*, mbgl::style::ColorRampPropertyValue> {
+
+    Result<jni::jobject*> operator()(jni::JNIEnv& env, const mbgl::style::ColorRampPropertyValue value) const {
+        PropertyValueEvaluator<mbgl::style::ColorRampPropertyValue> evaluator(env);
+        return *convert<jni::jobject*>(env, value.evaluate(evaluator));
     }
 };
 

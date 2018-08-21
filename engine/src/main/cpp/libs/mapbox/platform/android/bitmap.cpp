@@ -1,6 +1,7 @@
 #include "bitmap.hpp"
 
 #include <android/bitmap.h>
+#include <mbgl/util/logging.hpp>
 
 namespace mbgl {
 namespace android {
@@ -17,7 +18,7 @@ public:
     ~PixelGuard() {
         const int result = AndroidBitmap_unlockPixels(&env, jni::Unwrap(*bitmap));
         if (result != ANDROID_BITMAP_RESULT_SUCCESS) {
-            throw std::runtime_error("bitmap decoding: could not unlock pixels");
+            Log::Warning(mbgl::Event::General, "Bitmap decoding: could not unlock pixels");
         }
     }
 
@@ -110,8 +111,7 @@ PremultipliedImage Bitmap::GetImage(jni::JNIEnv& env, jni::Object<Bitmap> bitmap
     }
 
     if (info.format != ANDROID_BITMAP_FORMAT_RGBA_8888) {
-        // TODO: convert
-        throw std::runtime_error("bitmap decoding: bitmap format invalid");
+        bitmap = Bitmap::Copy(env, bitmap);
     }
 
     const PixelGuard guard(env, bitmap);
@@ -126,6 +126,13 @@ PremultipliedImage Bitmap::GetImage(jni::JNIEnv& env, jni::Object<Bitmap> bitmap
     }
 
     return { Size{ info.width, info.height }, std::move(pixels) };
+}
+
+jni::Object<Bitmap> Bitmap::Copy(jni::JNIEnv& env, jni::Object<Bitmap> bitmap) {
+    using Signature = jni::Object<Bitmap>(jni::Object<Config>, jni::jboolean);
+    auto static method = _class.GetMethod<Signature>(env, "copy");
+    auto config = Bitmap::Config::Create(env, Bitmap::Config::Value::ARGB_8888);
+    return bitmap.Call(env, method, config, (jni::jboolean) false);
 }
 
 } // namespace android

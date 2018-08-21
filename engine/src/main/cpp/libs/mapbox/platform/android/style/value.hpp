@@ -9,9 +9,13 @@ namespace android {
 
 class Value {
 public:
-
     Value(jni::JNIEnv&, jni::jobject*);
-    virtual ~Value();
+
+    Value(Value&&)                 = default;
+    Value& operator=(Value&&)      = default;
+
+    Value(const Value&)            = delete;
+    Value& operator=(const Value&) = delete;
 
     bool isNull() const;
     bool isArray() const;
@@ -21,15 +25,15 @@ public:
     bool isNumber() const;
 
     std::string toString() const;
-    float toNumber() const;
+    float toFloat() const;
+    double toDouble() const;
+    long toLong() const;
     bool toBool() const;
     Value get(const char* key) const;
     int getLength() const;
     Value get(const int index ) const;
 
-private:
-
-    jni::JNIEnv& jenv;
+    jni::JNIEnv& env;
     std::shared_ptr<jni::jobject> value;
 };
 

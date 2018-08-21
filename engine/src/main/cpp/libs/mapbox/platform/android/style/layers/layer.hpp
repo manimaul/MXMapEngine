@@ -3,8 +3,9 @@
 #include <mbgl/util/noncopyable.hpp>
 #include <mbgl/map/map.hpp>
 #include <mbgl/style/layer.hpp>
-
+#include "../../gson/json_array.hpp"
 #include "../value.hpp"
+#include "../../gson/json_element.hpp"
 
 #include <jni/jni.hpp>
 
@@ -66,9 +67,13 @@ public:
 
     /* common properties, but not shared by all */
 
-    void setFilter(jni::JNIEnv& env, jni::Array<jni::Object<>> jfilter);
+    void setFilter(jni::JNIEnv&, jni::Array<jni::Object<>>);
 
-    void setSourceLayer(jni::JNIEnv& env, jni::String sourceLayer);
+    jni::Object<gson::JsonElement> getFilter(jni::JNIEnv&);
+
+    void setSourceLayer(jni::JNIEnv&, jni::String);
+
+    jni::String getSourceLayer(jni::JNIEnv&);
 
     // Property getters
 

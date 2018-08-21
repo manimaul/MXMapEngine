@@ -8,13 +8,9 @@ file(GLOB_RECURSE MBGL_SOURCE_SET
         ${MB_DIR}/mbgl/*.cpp
         ${MB_DIR}/mbgl/*.hpp)
 
-file(GLOB_RECURSE PLATFORM_SET
-        ${MB_DIR}/platform/default/*.cpp
-        ${MB_DIR}/platform/${PLATFORM}/*.cpp)
+add_library(mbgl STATIC ${SOURCE_SET} ${MBGL_SOURCE_SET})
 
-message(${PLATFORM_SET})
-
-add_library(mbgl STATIC ${SOURCE_SET} ${MBGL_SOURCE_SET} ${PLATFORM_SET})
-
-target_include_directories(mbgl PUBLIC ${MB_DIR} ${MB_DIR}/include)
-include_directories(mbgl_platform PUBLIC ${MB_DIR}/platform/${PLATFORM} ${MB_DIR}/platform/default)
+message("icu include dir" ${ICU_SRC_DIR}/include)
+target_include_directories(mbgl PUBLIC ${MB_DIR} ${MB_DIR}/include ${ICU_SRC_DIR}/include)
+include_directories(mbgl PUBLIC ${MB_DIR}/platform/${PLATFORM} ${MB_DIR}/platform/default)
+target_compile_definitions(mbgl PRIVATE RAPIDJSON_HAS_STDSTRING=1 MBGL_VERSION_REV="r1")

@@ -28,13 +28,13 @@ inc_header_lib(variant:1.1.4)
 inc_header_lib(vector-tile:1.0.1)
 inc_header_lib(wagyu:0.4.3)
 
-# mbgl
-set(mbgl_DIR ${LIB_DIR})
-find_package(mbgl REQUIRED)
-
 # icu
 set(icu_DIR ${LIB_DIR})
 find_package(icu REQUIRED)
+
+# mbgl
+set(mbgl_DIR ${LIB_DIR})
+find_package(mbgl REQUIRED)
 
 # sqlite
 set(sqlite_DIR ${LIB_DIR})
@@ -49,19 +49,13 @@ add_library( # Sets the name of the library.
              # Provides a relative path to your source file(s).
              src/main/cpp/native-lib.cpp )
 
-find_library( # Sets the name of the path variable.
-              log-lib
-
-              # Specifies the name of the NDK library that
-              # you want CMake to locate.
-              log )
+find_library(log-lib log)
 
 add_dependencies(icu mapbox-gl)
 
 target_link_libraries(mapbox-gl
         #PRIVATE nunicode todo: (WK)
-        #PRIVATE mbgl
-        #PRIVATE icu
+        PRIVATE mbgl
         PUBLIC -llog
         PUBLIC -landroid
         PUBLIC -ljnigraphics

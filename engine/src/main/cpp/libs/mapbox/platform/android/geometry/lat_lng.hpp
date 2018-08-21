@@ -14,19 +14,13 @@ public:
 
     static constexpr auto Name() { return "com/mapbox/mapboxsdk/geometry/LatLng"; };
 
-    static jni::Object<LatLng> New(jni::JNIEnv&, double, double);
+    static jni::Object<LatLng> New(jni::JNIEnv&, const mbgl::LatLng&);
 
     static mbgl::Point<double> getGeometry(jni::JNIEnv&, jni::Object<LatLng>);
 
     static mbgl::LatLng getLatLng(jni::JNIEnv&, jni::Object<LatLng>);
 
     static jni::Class<LatLng> javaClass;
-
-    static void setLatitude(jni::JNIEnv&, jni::Object<LatLng>, double);
-
-    static void setLongitude(jni::JNIEnv&, jni::Object<LatLng>, double);
-
-    static void setAltitude(jni::JNIEnv&, jni::Object<LatLng>, double);
 
     static void registerNative(jni::JNIEnv&);
 

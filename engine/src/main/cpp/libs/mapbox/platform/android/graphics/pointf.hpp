@@ -14,9 +14,7 @@ public:
 
     static jni::Object<PointF> New(jni::JNIEnv&, float, float);
 
-    static void setX(jni::JNIEnv&, jni::Object<PointF>, float);
-
-    static void setY(jni::JNIEnv&, jni::Object<PointF>, float);
+    static mbgl::ScreenCoordinate getScreenCoordinate(jni::JNIEnv&, jni::Object<PointF>);
 
     static jni::Class<PointF> javaClass;
 

@@ -7,6 +7,6 @@ message("android abi ${ANDROID_ABI}")
 
 add_library(icu STATIC IMPORTED)
 set_property(TARGET icu PROPERTY IMPORTED_LOCATION ${ICU_SRC_DIR}/lib/libicuuc.a)
+#set(ICU_LIBRARIES ${ICU_SRC_DIR}/lib/libicuuc.a)
 
-#target_include_directories(icu PUBLIC ${ICU_SRC_DIR}/include)
 include_directories(${ICU_SRC_DIR}/include)
