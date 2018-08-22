@@ -1,0 +1,15 @@
+cmake_minimum_required(VERSION 3.4.1)
+
+macro(inc_header_lib _VISIBILITY _PACKAGE _VERSION)
+    message("including header only library name: " ${_PACKAGE} " version: " ${_VERSION})
+    set(_SRC_DIR "${SRC_ROOT}/libs/headers/${_PACKAGE}/${_VERSION}/include")
+    file(GLOB SOURCE_SET "${_SRC_DIR}/*.hpp")
+    include_directories(${_PACKAGE} ${_VISIBILITY} ${_SRC_DIR})
+endmacro()
+
+macro(target_inc_header_lib _TARGET _VISIBILITY _PACKAGE _VERSION)
+    message("including header only library name: " ${_PACKAGE} " version: " ${_VERSION})
+    set(_SRC_DIR "${SRC_ROOT}/libs/headers/${_PACKAGE}/${_VERSION}/include")
+    file(GLOB SOURCE_SET "${_SRC_DIR}/*.hpp")
+    target_include_directories(${_TARGET} ${_VISIBILITY} ${_SRC_DIR})
+endmacro()
