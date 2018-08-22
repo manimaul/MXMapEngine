@@ -36,6 +36,10 @@ find_package(icu REQUIRED)
 set(mbgl_DIR ${LIB_DIR})
 find_package(mbgl REQUIRED)
 
+# nunicode
+set(nunicode_DIR ${LIB_DIR})
+find_package(nunicode REQUIRED)
+
 add_library(mapbox-gl SHARED src/main/cpp/native-lib.cpp )
 
 find_library(log-lib log)
@@ -43,7 +47,7 @@ find_library(log-lib log)
 add_dependencies(icu mapbox-gl)
 
 target_link_libraries(mapbox-gl
-        #PRIVATE nunicode todo: (WK)
+        PRIVATE nunicode #todo: (WK)
         PRIVATE mbgl
         PUBLIC -llog
         PUBLIC -landroid
