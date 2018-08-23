@@ -1,6 +1,7 @@
 add_definitions(-DMBGL_USE_GLES2=1)
 # todo include(cmake/test-files.cmake)
 include(cmake/nunicode.cmake)
+include(cmake/icu.cmake)
 
 # Build thin archives.
 set(CMAKE_CXX_ARCHIVE_CREATE "<CMAKE_AR> cruT <TARGET> <LINK_FLAGS> <OBJECTS>")
@@ -20,11 +21,6 @@ endif()
 
 set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,--gc-sections -Wl,--version-script=${SRC_ROOT}/mapbox/platform/android/version-script")
 set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -Wl,--gc-sections -Wl,--version-script=${SRC_ROOT}/mapbox/platform/android/version-script")
-
-# todo() mason_use(jni.hpp VERSION 3.0.0 HEADER_ONLY)
-# todo() mason_use(sqlite VERSION 3.14.2)
-# todo() mason_use(gtest VERSION 1.8.0)
-# todo() mason_use(icu VERSION 58.1-min-size)
 
 ## mbgl core ##
 
@@ -89,10 +85,7 @@ macro(mbgl_platform_core)
     target_inc_header_lib(mbgl-core PUBLIC jni.hpp 3.0.0)
     target_inc_header_lib(mbgl-core PUBLIC rapidjson 1.1.0)
 
-    ## target_add_mason_package(mbgl-core PUBLIC geojson)
-    ## target_add_mason_package(mbgl-core PUBLIC jni.hpp)
-    ## target_add_mason_package(mbgl-core PUBLIC rapidjson)
-    ## todo() target_add_mason_package(mbgl-core PRIVATE icu)
+    add_dependencies(icu mbgl-core)
 
     target_link_libraries(mbgl-core
         PRIVATE nunicode
@@ -120,8 +113,9 @@ macro(mbgl_filesource)
         PRIVATE ${SRC_ROOT}/mapbox/platform/default/sqlite3.cpp
     )
 
-    target_add_mason_package(mbgl-filesource PUBLIC sqlite)
-    target_add_mason_package(mbgl-filesource PUBLIC jni.hpp)
+    # todo() target_add_mason_package(mbgl-filesource PUBLIC sqlite)
+    # todo() target_add_mason_package(mbgl-filesource PUBLIC jni.hpp)
+    target_inc_header_lib(mbgl-filesource PRIVATE geojson 0.4.2)
 
     target_link_libraries(mbgl-filesource
         PUBLIC -llog
