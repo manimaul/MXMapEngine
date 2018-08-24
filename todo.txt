@@ -1,7 +1,0 @@
-platform/android/config.cmake
-	linker flags
-	build flags
-
-stand alone icu build script
-
-remove use of cmake GLOB or delete unused sources

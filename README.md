@@ -13,4 +13,12 @@ Although Mapbox is awesome, I want repeatable builds that does not rely so heavi
 
 * Status?
 
-WIP
+WIP - Todo:
+
+1. build ICU with stand-alone android toolchain (rather than using static libs)
+2. include mapbox-android-gestures sources
+3. include mapbox-sdk-geojson sources
+4. include mapbox-sdk-services sources
+5. custom raster/vector tile provider
+6. custom overlays
+7. publish to jcenter
