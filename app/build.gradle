@@ -17,6 +17,10 @@ android {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            resValue "string", "mapbox_token", "$System.env.MAPBOX_TOKEN"
+        }
+        debug {
+            resValue "string", "mapbox_token", "$System.env.MAPBOX_TOKEN"
         }
     }
     compileOptions {

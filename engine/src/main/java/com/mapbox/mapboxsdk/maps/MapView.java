@@ -265,7 +265,7 @@ public class MapView extends FrameLayout implements NativeMapView.ViewCallback {
    */
   @UiThread
   public void onCreate(@Nullable Bundle savedInstanceState) {
-    if (savedInstanceState.getBoolean(MapboxConstants.STATE_HAS_SAVED_STATE)) {
+    if (savedInstanceState != null && Boolean.TRUE.equals(savedInstanceState.getBoolean(MapboxConstants.STATE_HAS_SAVED_STATE))) {
       this.savedInstanceState = savedInstanceState;
     }
   }

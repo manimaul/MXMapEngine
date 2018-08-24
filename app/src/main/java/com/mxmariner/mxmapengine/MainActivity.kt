@@ -3,6 +3,7 @@ package com.mxmariner.mxmapengine
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import com.mapbox.mapboxsdk.Mapbox
+import com.mapbox.mapboxsdk.constants.Style
 import kotlinx.android.synthetic.main.activity_main.*
 
 
@@ -11,12 +12,12 @@ class MainActivity : AppCompatActivity() {
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
-    Mapbox.getInstance(this, "abc123")
+    Mapbox.getInstance(this, getString(R.string.mapbox_token))
     setContentView(R.layout.activity_main)
     mapView.onCreate(savedInstanceState)
-//    mapView.getMapAsync {
-//      it.api
-//    }
+    mapView.getMapAsync {
+      it.setStyle(Style.DARK)
+    }
   }
 
   public override fun onStart() {

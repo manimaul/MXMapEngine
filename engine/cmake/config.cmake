@@ -2,6 +2,7 @@ add_definitions(-DMBGL_USE_GLES2=1)
 # todo include(cmake/test-files.cmake)
 include(cmake/nunicode.cmake)
 include(cmake/icu.cmake)
+include(cmake/sqlite.cmake)
 
 # Build thin archives.
 set(CMAKE_CXX_ARCHIVE_CREATE "<CMAKE_AR> cruT <TARGET> <LINK_FLAGS> <OBJECTS>")
@@ -113,11 +114,12 @@ macro(mbgl_filesource)
         PRIVATE ${SRC_ROOT}/mapbox/platform/default/sqlite3.cpp
     )
 
-    # todo() target_add_mason_package(mbgl-filesource PUBLIC sqlite)
-    # todo() target_add_mason_package(mbgl-filesource PUBLIC jni.hpp)
-    target_inc_header_lib(mbgl-filesource PRIVATE geojson 0.4.2)
+    target_inc_sqlite(mbgl-filesource PUBLIC)
+    target_inc_header_lib(mbgl-filesource PUBLIC jni 3.0.0)
 
     target_link_libraries(mbgl-filesource
+        PUBLIC sqlite
+        PUBLIC icu
         PUBLIC -llog
         PUBLIC -landroid
         PUBLIC -lstdc++
@@ -307,6 +309,7 @@ add_library(mbgl-android STATIC
 target_link_libraries(mbgl-android
     PUBLIC mbgl-filesource
     PUBLIC mbgl-core
+    PUBLIC icu
 )
 
 ## Shared library
