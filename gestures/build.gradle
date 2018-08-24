@@ -1,0 +1,45 @@
+apply plugin: 'com.android.library'
+
+android {
+    compileSdkVersion useSdk.toInteger()
+
+    defaultConfig {
+        minSdkVersion minSdk.toInteger()
+        targetSdkVersion useSdk.toInteger()
+        versionCode 1
+        versionName "1.0"
+
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    testOptions {
+        unitTests {
+            // for robolectric
+            includeAndroidResources = true
+        }
+    }
+}
+
+dependencies {
+    implementation group: 'com.android.support', name: 'appcompat-v7', version: androidSupportVersion
+
+    testImplementation group: 'org.mockito', name: 'mockito-core', version: mockitoVersion
+    testImplementation group: 'org.mockito', name: 'mockito-android', version: mockitoVersion
+    testImplementation group: 'org.robolectric', name: 'robolectric', version: robolectricVersion
+
+    testImplementation 'junit:junit:4.12'
+    androidTestImplementation group: 'com.android.support.test', name: 'runner', version: testRunnerVersion
+    androidTestImplementation group: 'com.android.support.test.espresso', name: 'espresso-core', version: espressoVersion
+}
