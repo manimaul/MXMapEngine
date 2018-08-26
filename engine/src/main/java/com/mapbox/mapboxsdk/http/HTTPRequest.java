@@ -8,6 +8,7 @@ import android.util.Log;
 
 import com.mapbox.mapboxsdk.Mapbox;
 import com.mapbox.mapboxsdk.constants.MapboxConstants;
+import com.mapbox.mapboxsdk.utils.Logger;
 
 import java.io.IOException;
 import java.io.InterruptedIOException;
@@ -27,7 +28,6 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
-import timber.log.Timber;
 
 import static android.util.Log.DEBUG;
 import static android.util.Log.ERROR;
@@ -36,7 +36,7 @@ import static android.util.Log.VERBOSE;
 import static android.util.Log.WARN;
 
 class HTTPRequest implements Callback {
-
+  private static final String TAG = HTTPRequest.class.getSimpleName();
   private static final int CONNECTION_ERROR = 0;
   private static final int TEMPORARY_ERROR = 1;
   private static final int PERMANENT_ERROR = 2;
@@ -227,7 +227,23 @@ class HTTPRequest implements Callback {
 
   private void log(int type, String errorMessage) {
     if (logEnabled) {
-      Timber.log(type, errorMessage);
+      switch (type) {
+        case Log.VERBOSE:
+          Log.v(TAG, errorMessage);
+          break;
+        case Log.DEBUG:
+          Logger.d(TAG, errorMessage);
+          break;
+        case Log.INFO:
+          Log.i(TAG, errorMessage);
+          break;
+        case Log.WARN:
+          Log.w(TAG, errorMessage);
+          break;
+        case Log.ERROR:
+          Log.e(TAG, errorMessage);
+          break;
+      }
     }
   }
 

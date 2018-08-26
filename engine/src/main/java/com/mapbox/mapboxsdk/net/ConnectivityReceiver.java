@@ -11,17 +11,18 @@ import android.support.annotation.NonNull;
 import android.support.annotation.UiThread;
 
 import com.mapbox.mapboxsdk.Mapbox;
+import com.mapbox.mapboxsdk.utils.Logger;
 
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
-
-import timber.log.Timber;
 
 /**
  * Interface definition for a callback to be invoked when connectivity changes.
  * Not public api.
  */
 public class ConnectivityReceiver extends BroadcastReceiver {
+  private static final String TAG = ConnectivityReceiver.class.getSimpleName();
+
   @SuppressLint("StaticFieldLeak")
   private static ConnectivityReceiver INSTANCE;
 
@@ -84,7 +85,7 @@ public class ConnectivityReceiver extends BroadcastReceiver {
   @Override
   public void onReceive(Context context, Intent intent) {
     boolean connected = isConnected(context);
-    Timber.v("Connected: %s", connected);
+    Logger.v(TAG, "Connected: %s", connected);
 
     // Loop over listeners
     for (ConnectivityListener listener : listeners) {

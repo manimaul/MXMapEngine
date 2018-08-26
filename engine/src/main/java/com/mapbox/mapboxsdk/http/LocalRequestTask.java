@@ -3,13 +3,13 @@ package com.mapbox.mapboxsdk.http;
 import android.content.res.AssetManager;
 import android.os.AsyncTask;
 import com.mapbox.mapboxsdk.Mapbox;
-import timber.log.Timber;
+import com.mapbox.mapboxsdk.utils.Logger;
 
 import java.io.IOException;
 import java.io.InputStream;
 
 class LocalRequestTask extends AsyncTask<String, Void, byte[]> {
-
+  private static final String TAG = LocalRequestTask.class.getSimpleName();
   private OnLocalRequestResponse requestResponse;
 
   LocalRequestTask(OnLocalRequestResponse requestResponse) {
@@ -40,7 +40,7 @@ class LocalRequestTask extends AsyncTask<String, Void, byte[]> {
       buffer = new byte[size];
       input.read(buffer);
     } catch (IOException exception) {
-      Timber.e(exception);
+      Logger.e(TAG, exception);
     }
     return buffer;
   }

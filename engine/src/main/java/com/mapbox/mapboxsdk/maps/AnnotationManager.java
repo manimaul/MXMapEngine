@@ -21,11 +21,11 @@ import com.mapbox.mapboxsdk.annotations.Polygon;
 import com.mapbox.mapboxsdk.annotations.PolygonOptions;
 import com.mapbox.mapboxsdk.annotations.Polyline;
 import com.mapbox.mapboxsdk.annotations.PolylineOptions;
+import com.mapbox.mapboxsdk.utils.Logger;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import timber.log.Timber;
 
 /**
  * Responsible for managing and tracking state of Annotations linked to Map. All events related to
@@ -39,7 +39,7 @@ import timber.log.Timber;
  * </p>
  */
 class AnnotationManager {
-
+  private static final String TAG = AnnotationManager.class.getSimpleName();
   private static final long NO_ANNOTATION_ID = -1;
 
   private final MapView mapView;
@@ -369,7 +369,7 @@ class AnnotationManager {
   }
 
   private void logNonAdded(Annotation annotation) {
-    Timber.w("Attempting to update non-added %s with value %s", annotation.getClass().getCanonicalName(), annotation);
+    Logger.w(TAG, "Attempting to update non-added %s with value %s", annotation.getClass().getCanonicalName(), annotation);
   }
 
   //

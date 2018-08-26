@@ -12,8 +12,8 @@ import com.mapbox.mapboxsdk.camera.CameraUpdate;
 import com.mapbox.mapboxsdk.camera.CameraUpdateFactory;
 import com.mapbox.mapboxsdk.constants.MapboxConstants;
 import com.mapbox.mapboxsdk.geometry.LatLng;
+import com.mapbox.mapboxsdk.utils.Logger;
 
-import timber.log.Timber;
 
 import static com.mapbox.mapboxsdk.maps.MapView.REGION_DID_CHANGE_ANIMATED;
 import static com.mapbox.mapboxsdk.maps.MapboxMap.OnCameraMoveStartedListener;
@@ -27,6 +27,7 @@ import static com.mapbox.mapboxsdk.maps.MapboxMap.OnCameraMoveStartedListener;
  */
 final class Transform implements MapView.OnMapChangedListener {
 
+  private static final String TAG = Transform.class.getSimpleName();
   private final NativeMapView mapView;
   private final MarkerViewManager markerViewManager;
   private final Handler handler = new Handler();
@@ -339,7 +340,7 @@ final class Transform implements MapView.OnMapChangedListener {
 
   void setMinZoom(double minZoom) {
     if ((minZoom < MapboxConstants.MINIMUM_ZOOM) || (minZoom > MapboxConstants.MAXIMUM_ZOOM)) {
-      Timber.e("Not setting minZoomPreference, value is in unsupported range: %s", minZoom);
+      Logger.e(TAG,"Not setting minZoomPreference, value is in unsupported range: %s", minZoom);
       return;
     }
     mapView.setMinZoom(minZoom);
@@ -351,7 +352,7 @@ final class Transform implements MapView.OnMapChangedListener {
 
   void setMaxZoom(double maxZoom) {
     if ((maxZoom < MapboxConstants.MINIMUM_ZOOM) || (maxZoom > MapboxConstants.MAXIMUM_ZOOM)) {
-      Timber.e("Not setting maxZoomPreference, value is in unsupported range: %s", maxZoom);
+      Logger.e(TAG,"Not setting maxZoomPreference, value is in unsupported range: %s", maxZoom);
       return;
     }
     mapView.setMaxZoom(maxZoom);

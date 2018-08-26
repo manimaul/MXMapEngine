@@ -23,7 +23,7 @@ WIP - Todo:
 * ~~include mapbox-sdk-geojson sources~~
 * ~~include mapbox-sdk-services sources~~
 * ~~clean up BuildConfig variables~~
-* remove timber
+* ~~remove timber~~
 * add mbgl gtest tests
 * add mbgl junit tests
 * CICD app center
