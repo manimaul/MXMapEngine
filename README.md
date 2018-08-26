@@ -20,8 +20,9 @@ WIP - Todo:
 
 * build ICU with stand-alone android toolchain (rather than using static libs)
 * ~~include mapbox-android-gestures sources~~
-* include mapbox-sdk-geojson sources
-* include mapbox-sdk-services sources
+* ~~include mapbox-sdk-geojson sources~~
+* ~~include mapbox-sdk-services sources~~
+* clean up BuildConfig variables
 * remove timber
 * add mbgl gtest tests
 * add mbgl junit tests

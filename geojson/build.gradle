@@ -1,0 +1,19 @@
+plugins {
+    id 'java-library'
+}
+
+group = 'com.mapbox.mapboxsdk'
+version = '3.5.0-SNAPSHOT'
+
+dependencies {
+    api group: 'com.google.code.gson', name: 'gson', version: gsonVersion
+    compileOnly "com.google.auto.value:auto-value-annotations:1.6.2"
+    compileOnly 'com.ryanharter.auto.value:auto-value-gson:0.8.0'
+    compileOnly group: 'com.android.support', name: 'support-annotations', version: androidSupportVersion
+
+    testImplementation 'junit:junit:4.12'
+    testImplementation 'org.hamcrest:hamcrest-junit:2.0.0.0'
+}
+
+sourceCompatibility = "1.8"
+targetCompatibility = "1.8"
