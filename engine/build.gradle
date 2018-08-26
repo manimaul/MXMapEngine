@@ -30,9 +30,7 @@ android {
     }
 
     buildTypes.each {
-        it.buildConfigField 'String', 'MAPBOX_SDK_IDENTIFIER', '\"MXEngine\"'
-        it.buildConfigField 'String', 'MAPBOX_SDK_VERSION', '\"6.3.0\"'
-        it.buildConfigField 'String', 'MAPBOX_EVENTS_USER_AGENT', '\"mxe\"'
+        it.buildConfigField 'String', 'USER_AGENT', '\"MXMapEngine\"'
     }
 
     externalNativeBuild {
