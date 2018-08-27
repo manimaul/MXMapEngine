@@ -47,7 +47,6 @@ android {
 dependencies {
     implementation group: 'org.jetbrains.kotlin', name: 'kotlin-stdlib-jdk8', version: kotlinVersion
     implementation group: 'com.android.support', name: 'appcompat-v7', version: androidSupportVersion
-    implementation group: 'com.jakewharton.timber', name: 'timber', version: '4.7.1'
     implementation group: 'com.google.code.gson', name: 'gson', version: gsonVersion
     implementation project(':gestures')
     implementation project(':geojson')

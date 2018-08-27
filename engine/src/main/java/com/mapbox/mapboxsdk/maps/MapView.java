@@ -21,7 +21,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.widget.FrameLayout;
-import android.widget.ImageView;
 import android.widget.ZoomButtonsController;
 import com.mapbox.android.gestures.AndroidGesturesManager;
 import com.mapbox.mapboxsdk.R;
@@ -82,8 +81,6 @@ public class MapView extends FrameLayout implements NativeMapView.ViewCallback {
 
   private CompassView compassView;
   private PointF focalPoint;
-  private ImageView attrView;
-  private ImageView logoView;
 
   private MapGestureDetector mapGestureDetector;
   private MapKeyListener mapKeyListener;
@@ -126,8 +123,6 @@ public class MapView extends FrameLayout implements NativeMapView.ViewCallback {
     // inflate view
     View view = LayoutInflater.from(context).inflate(R.layout.mapbox_mapview_internal, this);
     compassView = (CompassView) view.findViewById(R.id.compassView);
-    attrView = (ImageView) view.findViewById(R.id.attributionView);
-    logoView = (ImageView) view.findViewById(R.id.logoView);
 
     // add accessibility support
     setContentDescription(context.getString(R.string.mapbox_mapActionDescription));
@@ -152,7 +147,7 @@ public class MapView extends FrameLayout implements NativeMapView.ViewCallback {
 
     // setup components for MapboxMap creation
     Projection proj = new Projection(nativeMapView);
-    UiSettings uiSettings = new UiSettings(proj, focalInvalidator, compassView, attrView, logoView, getPixelRatio());
+    UiSettings uiSettings = new UiSettings(proj, focalInvalidator, compassView, getPixelRatio());
     LongSparseArray<Annotation> annotationsArray = new LongSparseArray<>();
     MarkerViewManager markerViewManager = new MarkerViewManager((ViewGroup) findViewById(R.id.markerViewContainer));
     IconManager iconManager = new IconManager(nativeMapView);
@@ -184,8 +179,6 @@ public class MapView extends FrameLayout implements NativeMapView.ViewCallback {
 
     compassView.injectCompassAnimationListener(createCompassAnimationListener(cameraChangeDispatcher));
     compassView.setOnClickListener(createCompassClickListener(cameraChangeDispatcher));
-    // inject widgets with MapboxMap
-    attrView.setOnClickListener(new AttributionClickListener(context, mapboxMap));
 
     // Ensure this view is interactable
     setClickable(true);
@@ -1158,30 +1151,6 @@ public class MapView extends FrameLayout implements NativeMapView.ViewCallback {
 
     void clearOnMapReadyCallbacks() {
       onMapReadyCallbackList.clear();
-    }
-  }
-
-  /**
-   * Click event hook for providing a custom attribution dialog manager.
-   */
-  private static class AttributionClickListener implements OnClickListener {
-
-    private final AttributionDialogManager defaultDialogManager;
-    private UiSettings uiSettings;
-
-    private AttributionClickListener(Context context, MapboxMap mapboxMap) {
-      this.defaultDialogManager = new AttributionDialogManager(context, mapboxMap);
-      this.uiSettings = mapboxMap.getUiSettings();
-    }
-
-    @Override
-    public void onClick(View v) {
-      AttributionDialogManager customDialogManager = uiSettings.getAttributionDialogManager();
-      if (customDialogManager != null) {
-        uiSettings.getAttributionDialogManager().onClick(v);
-      } else {
-        defaultDialogManager.onClick(v);
-      }
     }
   }
 }

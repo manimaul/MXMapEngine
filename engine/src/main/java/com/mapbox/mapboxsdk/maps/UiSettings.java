@@ -35,13 +35,6 @@ public final class UiSettings {
   private final CompassView compassView;
   private final int[] compassMargins = new int[4];
 
-  private final ImageView attributionsView;
-  private final int[] attributionsMargins = new int[4];
-  private AttributionDialogManager attributionDialogManager;
-
-  private final View logoView;
-  private final int[] logoMargins = new int[4];
-
   private final float pixelRatio;
 
   private boolean rotateGesturesEnabled = true;
@@ -68,13 +61,10 @@ public final class UiSettings {
   private PointF userProvidedFocalPoint;
 
   UiSettings(@NonNull Projection projection, @NonNull FocalPointChangeListener listener,
-             @NonNull CompassView compassView, @NonNull ImageView attributionsView, @NonNull View logoView,
-             float pixelRatio) {
+             @NonNull CompassView compassView, float pixelRatio) {
     this.projection = projection;
     this.focalPointChangeListener = listener;
     this.compassView = compassView;
-    this.attributionsView = attributionsView;
-    this.logoView = logoView;
     this.pixelRatio = pixelRatio;
   }
 
@@ -82,16 +72,12 @@ public final class UiSettings {
     Resources resources = context.getResources();
     initialiseGestures(options);
     initialiseCompass(options, resources);
-    initialiseLogo(options, resources);
-    initialiseAttribution(context, options);
     initialiseZoomControl(context);
   }
 
   void onSaveInstanceState(Bundle outState) {
     saveGestures(outState);
     saveCompass(outState);
-    saveLogo(outState);
-    saveAttribution(outState);
     saveZoomControl(outState);
     saveDeselectMarkersOnTap(outState);
     saveFocalPoint(outState);
@@ -100,8 +86,6 @@ public final class UiSettings {
   void onRestoreInstanceState(@NonNull Bundle savedInstanceState) {
     restoreGestures(savedInstanceState);
     restoreCompass(savedInstanceState);
-    restoreLogo(savedInstanceState);
-    restoreAttribution(savedInstanceState);
     restoreZoomControl(savedInstanceState);
     restoreDeselectMarkersOnTap(savedInstanceState);
     restoreFocalPoint(savedInstanceState);
@@ -183,80 +167,6 @@ public final class UiSettings {
     setCompassFadeFacingNorth(savedInstanceState.getBoolean(MapboxConstants.STATE_COMPASS_FADE_WHEN_FACING_NORTH));
     setCompassImage(BitmapUtils.getDrawableFromByteArray(
       compassView.getContext(), savedInstanceState.getByteArray(MapboxConstants.STATE_COMPASS_IMAGE_BITMAP)));
-  }
-
-  private void initialiseLogo(MapboxMapOptions options, Resources resources) {
-    setLogoEnabled(options.getLogoEnabled());
-    setLogoGravity(options.getLogoGravity());
-    setLogoMargins(resources, options.getLogoMargins());
-  }
-
-  private void setLogoMargins(Resources resources, int[] logoMargins) {
-    if (logoMargins != null) {
-      setLogoMargins(logoMargins[0], logoMargins[1], logoMargins[2], logoMargins[3]);
-    } else {
-      // user did not specify margins when programmatically creating a map
-      int fourDp = (int) resources.getDimension(R.dimen.mapbox_four_dp);
-      setLogoMargins(fourDp, fourDp, fourDp, fourDp);
-    }
-  }
-
-  private void saveLogo(Bundle outState) {
-    outState.putInt(MapboxConstants.STATE_LOGO_GRAVITY, getLogoGravity());
-    outState.putInt(MapboxConstants.STATE_LOGO_MARGIN_LEFT, getLogoMarginLeft());
-    outState.putInt(MapboxConstants.STATE_LOGO_MARGIN_TOP, getLogoMarginTop());
-    outState.putInt(MapboxConstants.STATE_LOGO_MARGIN_RIGHT, getLogoMarginRight());
-    outState.putInt(MapboxConstants.STATE_LOGO_MARGIN_BOTTOM, getLogoMarginBottom());
-    outState.putBoolean(MapboxConstants.STATE_LOGO_ENABLED, isLogoEnabled());
-  }
-
-  private void restoreLogo(Bundle savedInstanceState) {
-    setLogoEnabled(savedInstanceState.getBoolean(MapboxConstants.STATE_LOGO_ENABLED));
-    setLogoGravity(savedInstanceState.getInt(MapboxConstants.STATE_LOGO_GRAVITY));
-    setLogoMargins(savedInstanceState.getInt(MapboxConstants.STATE_LOGO_MARGIN_LEFT),
-      savedInstanceState.getInt(MapboxConstants.STATE_LOGO_MARGIN_TOP),
-      savedInstanceState.getInt(MapboxConstants.STATE_LOGO_MARGIN_RIGHT),
-      savedInstanceState.getInt(MapboxConstants.STATE_LOGO_MARGIN_BOTTOM));
-  }
-
-  private void initialiseAttribution(Context context, MapboxMapOptions options) {
-    setAttributionEnabled(options.getAttributionEnabled());
-    setAttributionGravity(options.getAttributionGravity());
-    setAttributionMargins(context, options.getAttributionMargins());
-    int attributionTintColor = options.getAttributionTintColor();
-    setAttributionTintColor(attributionTintColor != -1
-      ? attributionTintColor : ColorUtils.getPrimaryColor(context));
-  }
-
-  private void setAttributionMargins(Context context, int[] attributionMargins) {
-    if (attributionMargins != null) {
-      setAttributionMargins(attributionMargins[0], attributionMargins[1],
-        attributionMargins[2], attributionMargins[3]);
-    } else {
-      // user did not specify margins when programmatically creating a map
-      Resources resources = context.getResources();
-      int margin = (int) resources.getDimension(R.dimen.mapbox_four_dp);
-      int leftMargin = (int) resources.getDimension(R.dimen.mapbox_ninety_two_dp);
-      setAttributionMargins(leftMargin, margin, margin, margin);
-    }
-  }
-
-  private void saveAttribution(Bundle outState) {
-    outState.putInt(MapboxConstants.STATE_ATTRIBUTION_GRAVITY, getAttributionGravity());
-    outState.putInt(MapboxConstants.STATE_ATTRIBUTION_MARGIN_LEFT, getAttributionMarginLeft());
-    outState.putInt(MapboxConstants.STATE_ATTRIBUTION_MARGIN_TOP, getAttributionMarginTop());
-    outState.putInt(MapboxConstants.STATE_ATTRIBUTION_MARGIN_RIGHT, getAttributionMarginRight());
-    outState.putInt(MapboxConstants.STATE_ATTRIBUTION_MARGIN_BOTTOM, getAttributionMarginBottom());
-    outState.putBoolean(MapboxConstants.STATE_ATTRIBUTION_ENABLED, isAttributionEnabled());
-  }
-
-  private void restoreAttribution(Bundle savedInstanceState) {
-    setAttributionEnabled(savedInstanceState.getBoolean(MapboxConstants.STATE_ATTRIBUTION_ENABLED));
-    setAttributionGravity(savedInstanceState.getInt(MapboxConstants.STATE_ATTRIBUTION_GRAVITY));
-    setAttributionMargins(savedInstanceState.getInt(MapboxConstants.STATE_ATTRIBUTION_MARGIN_LEFT),
-      savedInstanceState.getInt(MapboxConstants.STATE_ATTRIBUTION_MARGIN_TOP),
-      savedInstanceState.getInt(MapboxConstants.STATE_ATTRIBUTION_MARGIN_RIGHT),
-      savedInstanceState.getInt(MapboxConstants.STATE_ATTRIBUTION_MARGIN_BOTTOM));
   }
 
   private void initialiseZoomControl(Context context) {
@@ -420,229 +330,6 @@ public final class UiSettings {
 
     double clockwiseBearing = -cameraPosition.bearing;
     compassView.update(clockwiseBearing);
-  }
-
-  /**
-   * <p>
-   * Enables or disables the Mapbox logo.
-   * </p>
-   * By default, the logo is enabled.
-   *
-   * @param enabled True to enable the logo; false to disable the logo.
-   */
-  public void setLogoEnabled(boolean enabled) {
-    logoView.setVisibility(enabled ? View.VISIBLE : View.GONE);
-  }
-
-  /**
-   * Returns whether the logo is enabled.
-   *
-   * @return True if the logo is enabled; false if the logo is disabled.
-   */
-  public boolean isLogoEnabled() {
-    return logoView.getVisibility() == View.VISIBLE;
-  }
-
-  /**
-   * <p>
-   * Sets the gravity of the logo view. Use this to change the corner of the map view that the
-   * Mapbox logo is displayed in.
-   * </p>
-   * By default, the logo is in the bottom left corner.
-   *
-   * @param gravity Android SDK Gravity.
-   */
-  public void setLogoGravity(int gravity) {
-    setWidgetGravity(logoView, gravity);
-  }
-
-  /**
-   * Returns the gravity value of the logo
-   *
-   * @return The gravity
-   */
-  public int getLogoGravity() {
-    return ((FrameLayout.LayoutParams) logoView.getLayoutParams()).gravity;
-  }
-
-  /**
-   * Sets the margins of the logo view. Use this to change the distance of the Mapbox logo from the
-   * map view edge.
-   *
-   * @param left   The left margin in pixels.
-   * @param top    The top margin in pixels.
-   * @param right  The right margin in pixels.
-   * @param bottom The bottom margin in pixels.
-   */
-  public void setLogoMargins(int left, int top, int right, int bottom) {
-    setWidgetMargins(logoView, logoMargins, left, top, right, bottom);
-  }
-
-  /**
-   * Returns the left side margin of the logo
-   *
-   * @return The left margin in pixels
-   */
-  public int getLogoMarginLeft() {
-    return logoMargins[0];
-  }
-
-  /**
-   * Returns the top side margin of the logo
-   *
-   * @return The top margin in pixels
-   */
-  public int getLogoMarginTop() {
-    return logoMargins[1];
-  }
-
-  /**
-   * Returns the right side margin of the logo
-   *
-   * @return The right margin in pixels
-   */
-  public int getLogoMarginRight() {
-    return logoMargins[2];
-  }
-
-  /**
-   * Returns the bottom side margin of the logo
-   *
-   * @return The bottom margin in pixels
-   */
-  public int getLogoMarginBottom() {
-    return logoMargins[3];
-  }
-
-  /**
-   * <p>
-   * Enables or disables the attribution.
-   * </p>
-   * By default, the attribution is enabled.
-   *
-   * @param enabled True to enable the attribution; false to disable the attribution.
-   */
-  public void setAttributionEnabled(boolean enabled) {
-    attributionsView.setVisibility(enabled ? View.VISIBLE : View.GONE);
-  }
-
-  /**
-   * Returns whether the attribution is enabled.
-   *
-   * @return True if the attribution is enabled; false if the attribution is disabled.
-   */
-  public boolean isAttributionEnabled() {
-    return attributionsView.getVisibility() == View.VISIBLE;
-  }
-
-
-  /**
-   * Set a custom attribution dialog manager.
-   * <p>
-   * Set to null to reset to default behaviour.
-   * </p>
-   *
-   * @param attributionDialogManager the manager class used for showing attribution
-   */
-  public void setAttributionDialogManager(@NonNull AttributionDialogManager attributionDialogManager) {
-    this.attributionDialogManager = attributionDialogManager;
-  }
-
-  /**
-   * Get the custom attribution dialog manager.
-   *
-   * @return the active manager class used for showing attribution
-   */
-  @NonNull
-  public AttributionDialogManager getAttributionDialogManager() {
-    return attributionDialogManager;
-  }
-
-  /**
-   * <p>
-   * Sets the gravity of the attribution.
-   * </p>
-   * By default, the attribution is in the bottom left corner next to the Mapbox logo.
-   *
-   * @param gravity Android SDK Gravity.
-   */
-  public void setAttributionGravity(int gravity) {
-    setWidgetGravity(attributionsView, gravity);
-  }
-
-  /**
-   * Returns the gravity value of the logo
-   *
-   * @return The gravity
-   */
-  public int getAttributionGravity() {
-    return ((FrameLayout.LayoutParams) attributionsView.getLayoutParams()).gravity;
-  }
-
-  /**
-   * Sets the margins of the attribution view.
-   *
-   * @param left   The left margin in pixels.
-   * @param top    The top margin in pixels.
-   * @param right  The right margin in pixels.
-   * @param bottom The bottom margin in pixels.
-   */
-  public void setAttributionMargins(int left, int top, int right, int bottom) {
-    setWidgetMargins(attributionsView, attributionsMargins, left, top, right, bottom);
-  }
-
-  /**
-   * <p>
-   * Sets the tint of the attribution view. Use this to change the color of the attribution.
-   * </p>
-   * By default, the logo is tinted with the primary color of your theme.
-   *
-   * @param tintColor Color to tint the attribution.
-   */
-  public void setAttributionTintColor(@ColorInt int tintColor) {
-    // Check that the tint color being passed in isn't transparent.
-    if (Color.alpha(tintColor) == 0) {
-      ColorUtils.setTintList(attributionsView,
-        ContextCompat.getColor(attributionsView.getContext(), R.color.mapbox_blue));
-    } else {
-      ColorUtils.setTintList(attributionsView, tintColor);
-    }
-  }
-
-  /**
-   * Returns the left side margin of the attribution view.
-   *
-   * @return The left margin in pixels
-   */
-  public int getAttributionMarginLeft() {
-    return attributionsMargins[0];
-  }
-
-  /**
-   * Returns the top side margin of the attribution view.
-   *
-   * @return The top margin in pixels
-   */
-  public int getAttributionMarginTop() {
-    return attributionsMargins[1];
-  }
-
-  /**
-   * Returns the right side margin of the attribution view.
-   *
-   * @return The right margin in pixels
-   */
-  public int getAttributionMarginRight() {
-    return attributionsMargins[2];
-  }
-
-  /**
-   * Returns the bottom side margin of the logo
-   *
-   * @return The bottom margin in pixels
-   */
-  public int getAttributionMarginBottom() {
-    return attributionsMargins[3];
   }
 
   /**
@@ -1005,10 +692,7 @@ public final class UiSettings {
    * Invalidates the ViewSettings instances shown on top of the MapView
    */
   public void invalidate() {
-    setLogoMargins(getLogoMarginLeft(), getLogoMarginTop(), getLogoMarginRight(), getLogoMarginBottom());
     setCompassMargins(getCompassMarginLeft(), getCompassMarginTop(), getCompassMarginRight(), getCompassMarginBottom());
-    setAttributionMargins(getAttributionMarginLeft(), getAttributionMarginTop(), getAttributionMarginRight(),
-      getAttributionMarginBottom());
   }
 
   private void setWidgetGravity(@NonNull final View view, int gravity) {

@@ -14,23 +14,4 @@
         android:layout_height="wrap_content"
         android:contentDescription="@string/mapbox_compassContentDescription"/>
 
-    <ImageView
-        android:visibility="gone"
-        android:id="@+id/logoView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:contentDescription="@null"
-        android:src="@drawable/mapbox_logo_icon"/>
-
-    <ImageView
-        android:visibility="gone"
-        android:id="@+id/attributionView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:adjustViewBounds="true"
-        android:clickable="true"
-        android:focusable="true"
-        android:contentDescription="@string/mapbox_attributionsIconContentDescription"
-        android:src="@drawable/mapbox_info_bg_selector"/>
-
 </merge>
