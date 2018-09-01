@@ -7,7 +7,6 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.support.annotation.ColorInt;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.content.res.ResourcesCompat;
@@ -31,8 +30,6 @@ import java.util.Arrays;
 public class MapboxMapOptions implements Parcelable {
 
   private static final float FOUR_DP = 4f;
-  private static final float NINETY_TWO_DP = 92f;
-  private static final int UNDEFINED_COLOR = -1;
 
   private CameraPosition cameraPosition;
 
@@ -43,16 +40,6 @@ public class MapboxMapOptions implements Parcelable {
   private int compassGravity = Gravity.TOP | Gravity.END;
   private int[] compassMargins;
   private Drawable compassImage;
-
-  private boolean logoEnabled = true;
-  private int logoGravity = Gravity.BOTTOM | Gravity.START;
-  private int[] logoMargins;
-
-  @ColorInt
-  private int attributionTintColor = UNDEFINED_COLOR;
-  private boolean attributionEnabled = true;
-  private int attributionGravity = Gravity.BOTTOM | Gravity.START;
-  private int[] attributionMargins;
 
   private double minZoom = MapboxConstants.MINIMUM_ZOOM;
   private double maxZoom = MapboxConstants.MAXIMUM_ZOOM;
@@ -96,15 +83,6 @@ public class MapboxMapOptions implements Parcelable {
     if (compassBitmap != null) {
       compassImage = new BitmapDrawable(compassBitmap);
     }
-
-    logoEnabled = in.readByte() != 0;
-    logoGravity = in.readInt();
-    logoMargins = in.createIntArray();
-
-    attributionEnabled = in.readByte() != 0;
-    attributionGravity = in.readInt();
-    attributionMargins = in.createIntArray();
-    attributionTintColor = in.readInt();
 
     minZoom = in.readDouble();
     maxZoom = in.readDouble();
@@ -180,35 +158,6 @@ public class MapboxMapOptions implements Parcelable {
         compassDrawable = ResourcesCompat.getDrawable(context.getResources(), R.drawable.mapbox_compass_icon, null);
       }
       mapboxMapOptions.compassImage(compassDrawable);
-
-      mapboxMapOptions.logoEnabled(typedArray.getBoolean(R.styleable.mapbox_MapView_mapbox_uiLogo, true));
-      mapboxMapOptions.logoGravity(typedArray.getInt(R.styleable.mapbox_MapView_mapbox_uiLogoGravity,
-        Gravity.BOTTOM | Gravity.START));
-      mapboxMapOptions.logoMargins(new int[] {
-        (int) (typedArray.getDimension(R.styleable.mapbox_MapView_mapbox_uiLogoMarginLeft,
-          FOUR_DP * pxlRatio)),
-        (int) (typedArray.getDimension(R.styleable.mapbox_MapView_mapbox_uiLogoMarginTop,
-          FOUR_DP * pxlRatio)),
-        (int) (typedArray.getDimension(R.styleable.mapbox_MapView_mapbox_uiLogoMarginRight,
-          FOUR_DP * pxlRatio)),
-        (int) (typedArray.getDimension(R.styleable.mapbox_MapView_mapbox_uiLogoMarginBottom,
-          FOUR_DP * pxlRatio))});
-
-      mapboxMapOptions.attributionTintColor(typedArray.getColor(
-        R.styleable.mapbox_MapView_mapbox_uiAttributionTintColor, UNDEFINED_COLOR));
-      mapboxMapOptions.attributionEnabled(typedArray.getBoolean(
-        R.styleable.mapbox_MapView_mapbox_uiAttribution, true));
-      mapboxMapOptions.attributionGravity(typedArray.getInt(
-        R.styleable.mapbox_MapView_mapbox_uiAttributionGravity, Gravity.BOTTOM | Gravity.START));
-      mapboxMapOptions.attributionMargins(new int[] {
-        (int) (typedArray.getDimension(R.styleable.mapbox_MapView_mapbox_uiAttributionMarginLeft,
-          NINETY_TWO_DP * pxlRatio)),
-        (int) (typedArray.getDimension(R.styleable.mapbox_MapView_mapbox_uiAttributionMarginTop,
-          FOUR_DP * pxlRatio)),
-        (int) (typedArray.getDimension(R.styleable.mapbox_MapView_mapbox_uiAttributionMarginRight,
-          FOUR_DP * pxlRatio)),
-        (int) (typedArray.getDimension(R.styleable.mapbox_MapView_mapbox_uiAttributionMarginBottom,
-          FOUR_DP * pxlRatio))});
 
       mapboxMapOptions.textureMode(
         typedArray.getBoolean(R.styleable.mapbox_MapView_mapbox_renderTextureMode, false));
@@ -352,83 +301,6 @@ public class MapboxMapOptions implements Parcelable {
    */
   public MapboxMapOptions compassImage(Drawable compass) {
     this.compassImage = compass;
-    return this;
-  }
-
-  /**
-   * Specifies the visibility state of a logo for a map view.
-   *
-   * @param enabled True and logo is shown
-   * @return This
-   */
-  public MapboxMapOptions logoEnabled(boolean enabled) {
-    logoEnabled = enabled;
-    return this;
-  }
-
-  /**
-   * Specifies the gravity state of logo for a map view.
-   *
-   * @param gravity Android SDK Gravity.
-   * @return This
-   */
-  public MapboxMapOptions logoGravity(int gravity) {
-    logoGravity = gravity;
-    return this;
-  }
-
-  /**
-   * Specifies the margin state of logo for a map view
-   *
-   * @param margins 4 long array for LTRB margins
-   * @return This
-   */
-  public MapboxMapOptions logoMargins(int[] margins) {
-    logoMargins = margins;
-    return this;
-  }
-
-  /**
-   * Specifies the visibility state of a attribution for a map view.
-   *
-   * @param enabled True and attribution is shown
-   * @return This
-   */
-  public MapboxMapOptions attributionEnabled(boolean enabled) {
-    attributionEnabled = enabled;
-    return this;
-  }
-
-  /**
-   * Specifies the gravity state of attribution for a map view.
-   *
-   * @param gravity Android SDK Gravity.
-   * @return This
-   */
-  public MapboxMapOptions attributionGravity(int gravity) {
-    attributionGravity = gravity;
-    return this;
-  }
-
-  /**
-   * Specifies the margin state of attribution for a map view
-   *
-   * @param margins 4 long array for LTRB margins
-   * @return This
-   */
-  public MapboxMapOptions attributionMargins(int[] margins) {
-    attributionMargins = margins;
-    return this;
-  }
-
-  /**
-   * Specifies the tint color of the attribution for a map view
-   *
-   * @param color integer resembling a color
-   * @return This
-   */
-  public MapboxMapOptions attributionTintColor(@ColorInt int color) {
-    attributionTintColor = color;
     return this;
   }
 
@@ -671,33 +543,6 @@ public class MapboxMapOptions implements Parcelable {
   }
 
   /**
-   * Get the current configured visibility state for mapbox_compass_icon for a map view.
-   *
-   * @return Visibility state of the mapbox_compass_icon
-   */
-  public boolean getLogoEnabled() {
-    return logoEnabled;
-  }
-
-  /**
-   * Get the current configured gravity state for logo for a map view.
-   *
-   * @return Gravity state of the logo
-   */
-  public int getLogoGravity() {
-    return logoGravity;
-  }
-
-  /**
-   * Get the current configured margins for logo for a map view.
-   *
-   * @return Margins state of the logo
-   */
-  public int[] getLogoMargins() {
-    return logoMargins;
-  }
-
-  /**
    * Get the current configured style url for a map view.
    *
    * @return Style url to be used.
@@ -758,43 +603,6 @@ public class MapboxMapOptions implements Parcelable {
    */
   public boolean getDoubleTapGesturesEnabled() {
     return doubleTapGesturesEnabled;
-  }
-
-  /**
-   * Get the current configured visibility state for attribution for a map view.
-   *
-   * @return Visibility state of the attribution
-   */
-  public boolean getAttributionEnabled() {
-    return attributionEnabled;
-  }
-
-  /**
-   * Get the current configured gravity state for attribution for a map view.
-   *
-   * @return Gravity state of the logo
-   */
-  public int getAttributionGravity() {
-    return attributionGravity;
-  }
-
-  /**
-   * Get the current configured margins for attribution for a map view.
-   *
-   * @return Margins state of the logo
-   */
-  public int[] getAttributionMargins() {
-    return attributionMargins;
-  }
-
-  /**
-   * Get the current configured tint color for attribution for a map view.
-   *
-   * @return the tint color
-   */
-  @ColorInt
-  public int getAttributionTintColor() {
-    return attributionTintColor;
   }
 
   /**
@@ -865,15 +673,6 @@ public class MapboxMapOptions implements Parcelable {
     dest.writeParcelable(compassImage != null
       ? BitmapUtils.getBitmapFromDrawable(compassImage) : null, flags);
 
-    dest.writeByte((byte) (logoEnabled ? 1 : 0));
-    dest.writeInt(logoGravity);
-    dest.writeIntArray(logoMargins);
-
-    dest.writeByte((byte) (attributionEnabled ? 1 : 0));
-    dest.writeInt(attributionGravity);
-    dest.writeIntArray(attributionMargins);
-    dest.writeInt(attributionTintColor);
-
     dest.writeDouble(minZoom);
     dest.writeDouble(maxZoom);
 
@@ -922,21 +721,6 @@ public class MapboxMapOptions implements Parcelable {
     if (compassGravity != options.compassGravity) {
       return false;
     }
-    if (logoEnabled != options.logoEnabled) {
-      return false;
-    }
-    if (logoGravity != options.logoGravity) {
-      return false;
-    }
-    if (attributionTintColor != options.attributionTintColor) {
-      return false;
-    }
-    if (attributionEnabled != options.attributionEnabled) {
-      return false;
-    }
-    if (attributionGravity != options.attributionGravity) {
-      return false;
-    }
     if (Double.compare(options.minZoom, minZoom) != 0) {
       return false;
     }
@@ -965,12 +749,6 @@ public class MapboxMapOptions implements Parcelable {
       return false;
     }
     if (!Arrays.equals(compassMargins, options.compassMargins)) {
-      return false;
-    }
-    if (!Arrays.equals(logoMargins, options.logoMargins)) {
-      return false;
-    }
-    if (!Arrays.equals(attributionMargins, options.attributionMargins)) {
       return false;
     }
     if (style != null ? !style.equals(options.style) : options.style != null) {
@@ -1006,13 +784,6 @@ public class MapboxMapOptions implements Parcelable {
     result = 31 * result + compassGravity;
     result = 31 * result + (compassImage != null ? compassImage.hashCode() : 0);
     result = 31 * result + Arrays.hashCode(compassMargins);
-    result = 31 * result + (logoEnabled ? 1 : 0);
-    result = 31 * result + logoGravity;
-    result = 31 * result + Arrays.hashCode(logoMargins);
-    result = 31 * result + attributionTintColor;
-    result = 31 * result + (attributionEnabled ? 1 : 0);
-    result = 31 * result + attributionGravity;
-    result = 31 * result + Arrays.hashCode(attributionMargins);
     temp = Double.doubleToLongBits(minZoom);
     result = 31 * result + (int) (temp ^ (temp >>> 32));
     temp = Double.doubleToLongBits(maxZoom);

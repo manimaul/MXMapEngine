@@ -15,6 +15,7 @@
         mapbox:mapbox_styleUrl="@string/mapbox_style_light"
         mapbox:mapbox_cameraTilt="60"
         mapbox:mapbox_cameraZoom="12"
+        mapbox:mapbox_uiCompass="true"
         />
 
 </FrameLayout>

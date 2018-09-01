@@ -18,15 +18,33 @@ public class Logger {
         }
     }
 
+    public static void d(String tag, String msg, Object... fmt) {
+        if (BuildConfig.DEBUG) {
+            Log.d(tag, String.format(msg, fmt));
+        }
+    }
+
     public static void w(String tag, String msg, Object... fmt) {
         if (BuildConfig.DEBUG) {
             Log.w(tag, String.format(msg, fmt));
         }
     }
 
-    public static void d(String tag, String msg, Object... fmt) {
+    public static void w(String tag, String msg, Throwable e) {
         if (BuildConfig.DEBUG) {
-            Log.d(tag, String.format(msg, fmt));
+            Log.w(tag, msg, e);
+        }
+    }
+
+    public static void w(String tag, Throwable e) {
+        if (BuildConfig.DEBUG) {
+            Log.w(tag, "", e);
+        }
+    }
+
+    public static void w(String tag, Throwable e, String msg, Object... fmt) {
+        if (BuildConfig.DEBUG) {
+            Log.w(tag, String.format(msg, fmt), e);
         }
     }
 

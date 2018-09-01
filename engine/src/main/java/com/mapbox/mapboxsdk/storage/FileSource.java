@@ -74,9 +74,9 @@ public class FileSource {
         MapboxConstants.KEY_META_DATA_SET_STORAGE_EXTERNAL,
         MapboxConstants.DEFAULT_SET_STORAGE_EXTERNAL);
     } catch (PackageManager.NameNotFoundException exception) {
-      Logger.e(TAG,exception, "Failed to read the package metadata: ");
+      Logger.w(TAG,exception, "Failed to read the package metadata: ");
     } catch (Exception exception) {
-      Logger.e(TAG,exception, "Failed to read the storage key: ");
+      Logger.w(TAG,exception, "Failed to read the storage key: ");
     }
 
     String cachePath = null;

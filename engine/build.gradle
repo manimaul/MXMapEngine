@@ -45,17 +45,31 @@ android {
 }
 
 dependencies {
+    implementation group: 'io.reactivex.rxjava2', name: 'rxjava', version: rxJavaVersion
+    implementation group: 'io.reactivex.rxjava2', name: 'rxandroid', version: rxJavaVersion
+    implementation group: 'io.reactivex.rxjava2', name: 'rxkotlin', version: rxKotlinVersion
+
     implementation group: 'org.jetbrains.kotlin', name: 'kotlin-stdlib-jdk8', version: kotlinVersion
-    implementation group: 'com.android.support', name: 'appcompat-v7', version: androidSupportVersion
+
     implementation group: 'com.google.code.gson', name: 'gson', version: gsonVersion
     implementation project(':gestures')
     implementation project(':geojson')
     implementation group: 'com.squareup.okhttp3', name: 'okhttp', version: okHttpVersion
 
-    implementation "com.android.support:support-annotations:${androidSupportVersion}"
-    implementation "com.android.support:support-fragment:${androidSupportVersion}"
-    implementation "com.android.support:design:${androidSupportVersion}"
-    implementation "com.android.support:recyclerview-v7:${androidSupportVersion}"
+    compileOnly group: 'com.google.auto.value', name: 'auto-value-annotations', version: autoValueVersion
+
+    annotationProcessor group: 'com.ryanharter.auto.value', name: 'auto-value-parcel', version: autoValueParcelVersion
+    annotationProcessor group: 'com.google.auto.value', name: 'auto-value-annotations', version: autoValueVersion
+
+    compileOnly group: 'com.google.android.gms', name: 'play-services-location', version: gmsLocationVersion
+
+    implementation 'android.arch.lifecycle:livedata:1.1.0'
+
+    implementation group: 'com.android.support', name: 'appcompat-v7', version: androidSupportVersion
+    implementation group: 'com.android.support', name: 'support-annotations', version: androidSupportVersion
+    implementation group: 'com.android.support', name: 'support-fragment', version: androidSupportVersion
+    implementation group: 'com.android.support', name: 'design', version: androidSupportVersion
+    implementation group: 'com.android.support', name: 'recyclerview-v7', version: androidSupportVersion
 
     testImplementation 'junit:junit:4.12'
     androidTestImplementation group: 'com.android.support.test', name: 'runner', version: testRunnerVersion

@@ -4,8 +4,12 @@ import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import com.mapbox.mapboxsdk.Mapbox
 import com.mapbox.mapboxsdk.constants.Style
+import com.mapbox.mapboxsdk.plugins.locationlayer.CameraMode.TRACKING_GPS_NORTH
+import com.mapbox.mapboxsdk.plugins.locationlayer.LocationLayerPlugin
+import com.willkamp.rxar.RxPermission
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.rxkotlin.subscribeBy
 import kotlinx.android.synthetic.main.activity_main.*
-
 
 
 class MainActivity : AppCompatActivity() {
@@ -15,9 +19,25 @@ class MainActivity : AppCompatActivity() {
     Mapbox.getInstance(this, getString(R.string.mapbox_token))
     setContentView(R.layout.activity_main)
     mapView.onCreate(savedInstanceState)
-    mapView.getMapAsync {
-      it.setStyle(Style.DARK)
-    }
+
+    RxPermission.checkLocationPermissionLazyRequest(this, supportFragmentManager).filter {
+      it
+    }.flatMap {
+      mapView.mapAsync.toMaybe()
+    }.observeOn(AndroidSchedulers.mainThread())
+        .subscribeBy(
+            onSuccess = {
+              val lp = LocationLayerPlugin(mapView, it)
+              lp.cameraMode = TRACKING_GPS_NORTH
+            }
+        )
+
+    mapView.mapAsync.observeOn(AndroidSchedulers.mainThread())
+        .subscribeBy(
+            onSuccess = {
+              it.setStyle(Style.OUTDOORS)
+            }
+        )
   }
 
   public override fun onStart() {

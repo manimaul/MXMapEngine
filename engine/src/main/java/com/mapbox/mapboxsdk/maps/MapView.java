@@ -39,6 +39,7 @@ import com.mapbox.mapboxsdk.offline.OfflineRegionDefinition;
 import com.mapbox.mapboxsdk.offline.OfflineTilePyramidRegionDefinition;
 import com.mapbox.mapboxsdk.storage.FileSource;
 import com.mapbox.mapboxsdk.utils.BitmapUtils;
+import com.mapbox.mapboxsdk.utils.Logger;
 
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
@@ -49,6 +50,9 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
+
+import io.reactivex.Single;
+import io.reactivex.subjects.SingleSubject;
 
 import static com.mapbox.mapboxsdk.maps.widgets.CompassView.TIME_MAP_NORTH_ANIMATION;
 import static com.mapbox.mapboxsdk.maps.widgets.CompassView.TIME_WAIT_IDLE;
@@ -68,6 +72,7 @@ import static com.mapbox.mapboxsdk.maps.widgets.CompassView.TIME_WAIT_IDLE;
  * and for ensuring your use adheres to the relevant terms of use.
  */
 public class MapView extends FrameLayout implements NativeMapView.ViewCallback {
+  private static final String TAG = MapView.class.getSimpleName();
 
   private final MapCallback mapCallback = new MapCallback();
   private final CopyOnWriteArrayList<OnMapChangedListener> onMapChangedListeners = new CopyOnWriteArrayList<>();
@@ -646,6 +651,18 @@ public class MapView extends FrameLayout implements NativeMapView.ViewCallback {
       callback.onMapReady(mapboxMap);
     } else {
       mapCallback.addOnMapReadyCallback(callback);
+    }
+  }
+
+  public Single<MapboxMap> getMapAsync()  {
+    if (!mapCallback.isInitialLoad()) {
+      Logger.d(TAG, "map async using already initialized mabox map");
+      return Single.just(mapboxMap);
+    } else {
+      Logger.d(TAG, "map async using single subject");
+      SingleSubject<MapboxMap> subject = SingleSubject.create();
+      mapCallback.addOnMapReadyCallback(subject::onSuccess);
+      return subject;
     }
   }
 
