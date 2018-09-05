@@ -30,6 +30,8 @@ import com.mapbox.mapboxsdk.camera.CameraPosition;
 import com.mapbox.mapboxsdk.camera.CameraUpdateFactory;
 import com.mapbox.mapboxsdk.constants.MapboxConstants;
 import com.mapbox.mapboxsdk.constants.Style;
+import com.mapbox.mapboxsdk.http.HTTPRequest;
+import com.mapbox.mapboxsdk.http.OfflineInterceptor;
 import com.mapbox.mapboxsdk.maps.renderer.MapRenderer;
 import com.mapbox.mapboxsdk.maps.renderer.glsurfaceview.GLSurfaceViewMapRenderer;
 import com.mapbox.mapboxsdk.maps.renderer.textureview.TextureViewMapRenderer;
@@ -512,9 +514,14 @@ public class MapView extends FrameLayout implements NativeMapView.ViewCallback {
    * @see Style
    */
   public void setStyleUrl(@NonNull String url) {
+    setStyleUrl(url, null);
+  }
+
+  public void setStyleUrl(@NonNull String url, @Nullable OfflineInterceptor offlineInterceptor) {
     if (destroyed) {
       return;
     }
+    HTTPRequest.setOfflineInterceptor(offlineInterceptor);
     if (!isMapInitialized()) {
       mapboxMapOptions.styleUrl(url);
       return;

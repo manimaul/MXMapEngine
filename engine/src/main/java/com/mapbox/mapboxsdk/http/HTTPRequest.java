@@ -2,8 +2,13 @@ package com.mapbox.mapboxsdk.http;
 
 import android.content.Context;
 import android.content.pm.PackageInfo;
+import android.net.Uri;
+import android.os.Handler;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.text.TextUtils;
+import android.text.format.DateFormat;
+import android.util.Base64;
 import android.util.Log;
 
 import com.mapbox.mapboxsdk.Mapbox;
@@ -16,10 +21,18 @@ import java.net.NoRouteToHostException;
 import java.net.ProtocolException;
 import java.net.SocketException;
 import java.net.UnknownHostException;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.Locale;
 import java.util.concurrent.locks.ReentrantLock;
 
 import javax.net.ssl.SSLException;
 
+import io.reactivex.Scheduler;
+import io.reactivex.Single;
+import io.reactivex.SingleObserver;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.Disposable;
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.Dispatcher;
@@ -35,11 +48,54 @@ import static android.util.Log.INFO;
 import static android.util.Log.VERBOSE;
 import static android.util.Log.WARN;
 
-class HTTPRequest implements Callback {
+public class HTTPRequest implements Callback {
   private static final String TAG = HTTPRequest.class.getSimpleName();
   private static final int CONNECTION_ERROR = 0;
   private static final int TEMPORARY_ERROR = 1;
   private static final int PERMANENT_ERROR = 2;
+  public static final int OFFLINE_RESPONSE_CODE = 200;
+  public static final int OFFLINE_FAILURE_CODE = 404;
+  public static final String UNKNOWN_ERROR = "unknown error";
+  public static final String OFFLINE_INTERCEPTOR_NULL_OBSERVABLE = "offline interceptor produced a null observable";
+
+  /**
+   * https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Cache-Control
+   * The Cache-Control general-header field is used to specify directives for caching mechanisms in both,
+   * requests and responses. Caching directives are unidirectional, meaning that a given directive
+   * in a request is not implying that the same directive is to be given in the response.
+   *
+   * Cache-Control: max-age=<seconds>
+   *     Specifies the maximum amount of time a resource will be considered fresh. Contrary to Expires,
+   *     this directive is relative to the time of the request.
+   * Cache-Control: s-maxage=<seconds>
+   *     Overrides max-age or the Expires header, but it only applies to shared caches (e.g., proxies)
+   *     and is ignored by a private cache.
+   */
+  public static final String OFFLINE_RESPONSE_CACHE_CONTROL = String.format(Locale.US, "max-age=%d", 30);
+
+  /**
+   * https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Expires
+   * The Expires header contains the date/time after which the response is considered stale.
+   *
+   * Invalid dates, like the value 0, represent a date in the past and mean that the resource is already expired.
+   *
+   * If there is a Cache-Control header with the "max-age" or "s-max-age" directive in the response,
+   * the Expires header is ignored.
+   */
+  public static final String OFFLINE_RESPONSE_CACHE_EXPIRES = null;
+
+  private static MessageDigest sMessageDigest;
+  static {
+    try {
+      sMessageDigest = MessageDigest.getInstance("SHA-1");
+    } catch (NoSuchAlgorithmException e) {
+      Logger.e(TAG, e);
+    }
+  }
+
+  private static final Handler sHandler = new Handler();
+  private static final Scheduler sScheduler = AndroidSchedulers.from(sHandler.getLooper());
+
 
   private static OkHttpClient client = new OkHttpClient.Builder().dispatcher(getDispatcher()).build();
   private static boolean logEnabled = true;
@@ -50,21 +106,30 @@ class HTTPRequest implements Callback {
   private String userAgentString;
   private long nativePtr = 0;
   private Call call;
+  private static OfflineInterceptor sOfflineInterceptor;
+  private Uri mResourceUrl;
 
   private HTTPRequest(long nativePtr, String resourceUrl, String etag, String modified) {
     this.nativePtr = nativePtr;
 
-    if (resourceUrl.startsWith("local://")) {
+    mResourceUrl = Uri.parse(resourceUrl);
+    if (sOfflineInterceptor != null && mResourceUrl.getHost().equals(sOfflineInterceptor.host())) {
+      initializeOfflineRequest();
+    } else if (resourceUrl.startsWith("local://")) {
       // used by render test to serve files from assets
       executeLocalRequest(resourceUrl);
-      return;
+    } else {
+      executeRequest(resourceUrl, etag, modified);
     }
-    executeRequest(resourceUrl, etag, modified);
   }
 
   public void cancel() {
     // call can be null if the constructor gets aborted (e.g, under a NoRouteToHostException).
-    if (call != null) {
+    if (call == null) {
+      if (sOfflineInterceptor != null) {
+        sOfflineInterceptor.cancel(mResourceUrl);
+      }
+    } else {
       call.cancel();
     }
 
@@ -134,6 +199,10 @@ class HTTPRequest implements Callback {
 
   static void setOKHttpClient(OkHttpClient client) {
     HTTPRequest.client = client;
+  }
+
+  public static void setOfflineInterceptor(@Nullable OfflineInterceptor offlineInterceptor) {
+    sOfflineInterceptor = offlineInterceptor;
   }
 
   private static Dispatcher getDispatcher() {
@@ -215,6 +284,41 @@ class HTTPRequest implements Callback {
     lock.unlock();
   }
 
+  public String makeModified() {
+    return DateFormat.format("EEE, dd MMM yyyy HH:mm:ss zzz", System.currentTimeMillis()).toString();
+  }
+
+  public synchronized String makeEtag(byte[] body) {
+    assert sMessageDigest != null;
+    sMessageDigest.reset();
+    return Base64.encodeToString(sMessageDigest.digest(body), Base64.DEFAULT);
+  }
+
+  public void onOfflineResponse(byte[] body) {
+    lock.lock();
+    if (nativePtr != 0) {
+      String etag = makeEtag(body);
+      String mod = makeModified();
+      nativeOnResponse(OFFLINE_RESPONSE_CODE,
+              etag,
+              mod,
+              OFFLINE_RESPONSE_CACHE_CONTROL,
+              OFFLINE_RESPONSE_CACHE_EXPIRES,
+              null,
+              null,
+              body);
+    }
+    lock.unlock();
+  }
+
+  public void onOfflineFailure(final String message) {
+    lock.lock();
+    if (nativePtr != 0) {
+      nativeOnFailure(OFFLINE_FAILURE_CODE, message);
+    }
+    lock.unlock();
+  }
+
   private int getFailureType(Exception e) {
     if ((e instanceof NoRouteToHostException) || (e instanceof UnknownHostException) || (e instanceof SocketException)
       || (e instanceof ProtocolException) || (e instanceof SSLException)) {
@@ -280,6 +384,34 @@ class HTTPRequest implements Callback {
       return String.format("%s/%s (%s)", context.getPackageName(), packageInfo.versionName, packageInfo.versionCode);
     } catch (Exception exception) {
       return "";
+    }
+  }
+
+  private void initializeOfflineRequest() {
+    Single<byte[]> responseObservable = sOfflineInterceptor.handleRequest(mResourceUrl);
+    if (responseObservable != null) {
+      responseObservable
+              .observeOn(sScheduler)
+              .subscribe(new SingleObserver<byte[]>() {
+
+                @Override
+                public void onError(Throwable e) {
+                  final String message = e.getMessage();
+                  onOfflineFailure(message == null ? UNKNOWN_ERROR : message);
+                }
+
+                @Override
+                public void onSubscribe(Disposable d) {
+
+                }
+
+                @Override
+                public void onSuccess(byte[] bytes) {
+                  onOfflineResponse(bytes);
+                }
+              });
+    } else {
+      onOfflineFailure(OFFLINE_INTERCEPTOR_NULL_OBSERVABLE);
     }
   }
 

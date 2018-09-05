@@ -67,7 +67,7 @@ public final class LocationLayerPlugin implements LifecycleObserver {
   private static final String TAG = LocationLayerPlugin.class.getSimpleName();
 
   private final MapboxMap mapboxMap;
-//  private final MapView mapView;
+  private final MapView mapView;
   private LocationLayerOptions options;
   private LocationEngine locationEngine;
   private CompassManager compassManager;
