@@ -27,6 +27,11 @@ WIP - Todo:
 * add mbgl gtest tests
 * add mbgl junit tests
 * CICD app center
-* custom raster/vector tile provider
-* custom overlays
+* ~~custom raster/vector tile provider~~
 * publish to jcenter
+
+* rx interface
+    observable zoom change
+    observable LatLngBounds, LatLng (center)
+    observable style change (online / offline)
+    observable mapready (using rx variable)

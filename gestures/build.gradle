@@ -1,4 +1,5 @@
 apply plugin: 'com.android.library'
+apply plugin: 'net.researchgate.release'
 
 android {
     compileSdkVersion useSdk.toInteger()
@@ -43,3 +44,29 @@ dependencies {
     androidTestImplementation group: 'com.android.support.test', name: 'runner', version: testRunnerVersion
     androidTestImplementation group: 'com.android.support.test.espresso', name: 'espresso-core', version: espressoVersion
 }
+
+apply from: rootProject.file('gradle/maven-publish-android.gradle')
+
+bintray {
+    user = bintray_user
+    key = bintray_key
+    dryRun = false
+    publish = true
+    publications = ['maven']
+    pkg {
+        userOrg = 'madrona'
+        repo = 'maven'
+        name = project.name
+        version {
+            name = project.version //Bintray logical version name
+        }
+        licenses = ['Apache-2.0', 'Boost-1.0', 'MIT']
+        websiteUrl = 'https://github.com/manimaul/MXMapEngine'
+        issueTrackerUrl = 'https://github.com/manimaul/MXMapEngine/issues'
+        vcsUrl = 'https://github.com/manimaul/MXMapEngine.git '
+        desc = 'Custom map rendering engine for Android used in MX Mariner'
+        labels = ['android', 'mx mariner', 'map']
+    }
+}
+
+afterReleaseBuild.dependsOn ':gestures:bintrayUpload'

@@ -88,7 +88,7 @@ bintray {
     pkg {
         userOrg = 'madrona'
         repo = 'maven'
-        name = 'mxmapengine'
+        name = project.name
         version {
             name = project.version //Bintray logical version name
         }
