@@ -19,10 +19,25 @@ import java.util.List;
  */
 public class LatLngBounds implements Parcelable {
 
-  private final double latitudeNorth;
-  private final double latitudeSouth;
-  private final double longitudeEast;
-  private final double longitudeWest;
+  private double latitudeNorth;
+  private double latitudeSouth;
+  private double longitudeEast;
+  private double longitudeWest;
+
+  public static LatLngBounds create() {
+    LatLngBounds.Builder builder = new LatLngBounds.Builder();
+
+    LatLng topLeft = new LatLng();
+    LatLng topRight = new LatLng();
+    LatLng bottomRight = new LatLng();
+    LatLng bottomLeft = new LatLng();
+
+    builder.include(topLeft)
+            .include(topRight)
+            .include(bottomRight)
+            .include(bottomLeft);
+    return builder.build();
+  }
 
   /**
    * Construct a new LatLngBounds based on its corners, given in NESW
@@ -37,7 +52,7 @@ public class LatLngBounds implements Parcelable {
    * @param southLatitude Southern Latitude
    * @param westLongitude Western Longitude
    */
-  LatLngBounds(final double northLatitude, final double eastLongitude, final double southLatitude,
+  public LatLngBounds(final double northLatitude, final double eastLongitude, final double southLatitude,
                final double westLongitude) {
     this.latitudeNorth = northLatitude;
     this.longitudeEast = eastLongitude;
@@ -77,6 +92,13 @@ public class LatLngBounds implements Parcelable {
     }
 
     return new LatLng(latCenter, longCenter);
+  }
+
+  public void set(LatLngBounds other) {
+    latitudeNorth = other.latitudeNorth;
+    longitudeEast = other.longitudeEast;
+    latitudeSouth = other.latitudeSouth;
+    longitudeWest = other.longitudeWest;
   }
 
   /**
@@ -223,7 +245,7 @@ public class LatLngBounds implements Parcelable {
    * @param latLngs List of LatLng objects
    * @return LatLngBounds
    */
-  static LatLngBounds fromLatLngs(final List<? extends ILatLng> latLngs) {
+  public static LatLngBounds fromLatLngs(final List<? extends ILatLng> latLngs) {
     double minLat = GeometryConstants.MAX_LATITUDE;
     double maxLat = GeometryConstants.MIN_LATITUDE;
 

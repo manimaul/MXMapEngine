@@ -102,6 +102,12 @@ public class LatLng implements ILatLng, Parcelable {
     setAltitude(in.readDouble());
   }
 
+  public void set(LatLng other) {
+    latitude = other.latitude;
+    longitude = other.longitude;
+    altitude = other.altitude;
+  }
+
   /**
    * Set the latitude, in degrees.
    * <p>

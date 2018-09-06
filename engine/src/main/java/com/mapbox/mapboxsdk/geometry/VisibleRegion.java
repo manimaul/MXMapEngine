@@ -37,6 +37,21 @@ public class VisibleRegion implements Parcelable {
    */
   public final LatLngBounds latLngBounds;
 
+  public static VisibleRegion create() {
+    LatLngBounds.Builder builder = new LatLngBounds.Builder();
+
+    LatLng topLeft = new LatLng();
+    LatLng topRight = new LatLng();
+    LatLng bottomRight = new LatLng();
+    LatLng bottomLeft = new LatLng();
+
+    builder.include(topLeft)
+            .include(topRight)
+            .include(bottomRight)
+            .include(bottomLeft);
+    return new VisibleRegion(topLeft, topRight, bottomLeft, bottomRight, builder.build());
+  }
+
   /**
    * Creates a VisibleRegion from a Parcel.
    *
@@ -48,6 +63,14 @@ public class VisibleRegion implements Parcelable {
     this.nearLeft = in.readParcelable(LatLng.class.getClassLoader());
     this.nearRight = in.readParcelable(LatLng.class.getClassLoader());
     this.latLngBounds = in.readParcelable(LatLngBounds.class.getClassLoader());
+  }
+
+  public void set(VisibleRegion other) {
+    this.farLeft.set(other.farLeft);
+    this.farRight.set(other.farRight);
+    this.nearLeft.set(other.nearLeft);
+    this.nearRight.set(other.nearRight);
+    this.latLngBounds.set(other.latLngBounds);
   }
 
   /**

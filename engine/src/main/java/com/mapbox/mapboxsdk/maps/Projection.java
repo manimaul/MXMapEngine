@@ -147,6 +147,10 @@ public class Projection {
     }
   }
 
+  public void toScreenLocation(@NonNull LatLng location, PointF pointF) {
+    pointF.set(toScreenLocation(location));
+  }
+
   /**
    * Returns a screen location that corresponds to a geographical coordinate (LatLng).
    * The screen location is in screen pixels (not display pixels) relative to the top left
