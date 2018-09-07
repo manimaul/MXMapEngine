@@ -40,6 +40,7 @@ import com.mapbox.mapboxsdk.constants.MapboxConstants;
 import com.mapbox.mapboxsdk.constants.Style;
 import com.mapbox.mapboxsdk.geometry.LatLng;
 import com.mapbox.mapboxsdk.geometry.LatLngBounds;
+import com.mapbox.mapboxsdk.geometry.VisibleRegion;
 import com.mapbox.mapboxsdk.style.expressions.Expression;
 import com.mapbox.mapboxsdk.style.layers.Layer;
 import com.mapbox.mapboxsdk.style.light.Light;
@@ -48,6 +49,10 @@ import com.mapbox.mapboxsdk.utils.Logger;
 
 import java.util.HashMap;
 import java.util.List;
+
+import io.reactivex.Observable;
+import io.reactivex.functions.Predicate;
+import io.reactivex.subjects.BehaviorSubject;
 
 /**
  * The general class to interact with in the Android Mapbox SDK. It exposes the entry point for all
@@ -73,6 +78,9 @@ public final class MapboxMap {
   private final OnGesturesManagerInteractionListener onGesturesManagerInteractionListener;
 
   private MapboxMap.OnFpsChangedListener onFpsChangedListener;
+  private BehaviorSubject<CameraPosition> cameraPositionSubject = BehaviorSubject.create();
+  private BehaviorSubject<Projection> projectionSubject = BehaviorSubject.create();
+  private BehaviorSubject<String> styleSubject = BehaviorSubject.create();
 
   MapboxMap(NativeMapView map, Transform transform, UiSettings ui, Projection projection,
             OnGesturesManagerInteractionListener listener, AnnotationManager annotations,
@@ -184,7 +192,28 @@ public final class MapboxMap {
     CameraPosition cameraPosition = transform.invalidateCameraPosition();
     if (cameraPosition != null) {
       uiSettings.update(cameraPosition);
+      cameraPositionSubject.onNext(cameraPosition);
     }
+    projection.invalidateMapBounds();
+    projectionSubject.onNext(projection);
+  }
+
+  public Observable<VisibleRegion> visibleRegionObservable(Predicate<Projection> predicate) {
+    return projectionChangeObservable()
+        .filter(predicate)
+        .map(Projection::getVisibleRegion);
+  }
+
+  public Observable<Projection> projectionChangeObservable() {
+    return projectionSubject.hide();
+  }
+
+  public Observable<CameraPosition> cameraPositionObservable() {
+    return cameraPositionSubject.hide();
+  }
+
+  public Observable<String> styleChangeObservable() {
+    return styleSubject.hide();
   }
 
   // Style
@@ -1013,6 +1042,7 @@ public final class MapboxMap {
       });
     }
     nativeMapView.setStyleUrl(url);
+    styleSubject.onNext(url);
   }
 
   /**

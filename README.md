@@ -31,7 +31,6 @@ WIP - Todo:
 * publish to jcenter
 
 * rx interface
-    observable zoom change
-    observable LatLngBounds, LatLng (center)
-    observable style change (online / offline)
-    observable mapready (using rx variable)
+    ~~observable zoom change~~
+    ~~observable LatLngBounds, LatLng (center)~~
+    ~~observable style change (online / offline)~~

@@ -11,6 +11,8 @@ import com.mapbox.mapboxsdk.geometry.VisibleRegion;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * A projection is used to translate between on screen location and geographic coordinates on
@@ -21,6 +23,9 @@ public class Projection {
 
   private final NativeMapView nativeMapView;
   private int[] contentPadding;
+  private final LatLng wgsCenter = new LatLng();
+  private final VisibleRegion visibleRegion = VisibleRegion.create();
+  private final AtomicBoolean dirtyBounds = new AtomicBoolean(false);
 
   Projection(@NonNull NativeMapView nativeMapView) {
     this.nativeMapView = nativeMapView;
@@ -84,8 +89,22 @@ public class Projection {
     return nativeMapView.latLngForPixel(point);
   }
 
-  public void updateMapBounds(VisibleRegion visibleRegion, LatLng mapCenter) {
-    nativeMapView.updateMapBounds(visibleRegion, mapCenter);
+  void invalidateMapBounds() {
+    dirtyBounds.set(true);
+  }
+
+  public VisibleRegion getVisibleRegion() {
+    if (dirtyBounds.getAndSet(false)) {
+      nativeMapView.updateMapBounds(visibleRegion, wgsCenter);
+    }
+    return visibleRegion;
+  }
+
+  public LatLng getWgsCenter() {
+    if (dirtyBounds.getAndSet(false)) {
+      nativeMapView.updateMapBounds(visibleRegion, wgsCenter);
+    }
+    return wgsCenter;
   }
 
   /**
@@ -95,7 +114,7 @@ public class Projection {
    * @return The projection of the viewing frustum in its current state.
    */
   @NonNull
-  public VisibleRegion getVisibleRegion() {
+  public VisibleRegion getVisibleRegionOld() {
     float left = 0;
     float right = nativeMapView.getWidth();
     float top = 0;
