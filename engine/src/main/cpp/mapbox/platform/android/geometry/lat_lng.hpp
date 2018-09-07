@@ -20,6 +20,12 @@ public:
 
     static mbgl::LatLng getLatLng(jni::JNIEnv&, jni::Object<LatLng>);
 
+    static void setLatitude(jni::JNIEnv& env, jni::Object<LatLng> latLng, double const latitude);
+
+    static void setLongitude(jni::JNIEnv& env, jni::Object<LatLng> latLng, double const longitude);
+
+    static void setAltitude(jni::JNIEnv& env, jni::Object<LatLng> latLng, double const altitude);
+
     static jni::Class<LatLng> javaClass;
 
     static void registerNative(jni::JNIEnv&);

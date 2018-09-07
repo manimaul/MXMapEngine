@@ -137,6 +137,7 @@ void registerNatives(JavaVM *vm) {
     LatLngBounds::registerNative(env);
     LatLngQuad::registerNative(env);
     ProjectedMeters::registerNative(env);
+    VisibleRegion::registerNative(env);
 
     // GSon
     gson::JsonArray::registerNative(env);

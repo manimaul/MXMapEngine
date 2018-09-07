@@ -23,6 +23,7 @@ import com.mapbox.mapboxsdk.exceptions.CalledFromWorkerThreadException;
 import com.mapbox.mapboxsdk.geometry.LatLng;
 import com.mapbox.mapboxsdk.geometry.LatLngBounds;
 import com.mapbox.mapboxsdk.geometry.ProjectedMeters;
+import com.mapbox.mapboxsdk.geometry.VisibleRegion;
 import com.mapbox.mapboxsdk.maps.renderer.MapRenderer;
 import com.mapbox.mapboxsdk.storage.FileSource;
 import com.mapbox.mapboxsdk.style.expressions.Expression;
@@ -600,6 +601,12 @@ final class NativeMapView {
       projectedMeters.getEasting()).wrap();
   }
 
+  public void updateMapBounds(VisibleRegion visibleRegion, LatLng latLng) {
+    if (!checkState("updateMapBounds")) {
+      nativeUpdateMapBounds(visibleRegion, latLng);
+    }
+  }
+
   public PointF pixelForLatLng(LatLng latLng) {
     if (checkState("pixelForLatLng")) {
       return new PointF();
@@ -1027,6 +1034,8 @@ final class NativeMapView {
   private native LatLng nativeLatLngForProjectedMeters(double northing, double easting);
 
   private native PointF nativePixelForLatLng(double lat, double lon);
+
+  private native void nativeUpdateMapBounds(VisibleRegion visibleRegion, LatLng latLng);
 
   private native LatLng nativeLatLngForPixel(float x, float y);
 

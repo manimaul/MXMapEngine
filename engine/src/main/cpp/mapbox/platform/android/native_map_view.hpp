@@ -18,6 +18,7 @@
 #include "geojson/geometry.hpp"
 #include "geometry/lat_lng.hpp"
 #include "geometry/projected_meters.hpp"
+#include "geometry/visible_region.hpp"
 #include "style/layers/layers.hpp"
 #include "style/sources/source.hpp"
 #include "geometry/lat_lng_bounds.hpp"
@@ -165,6 +166,8 @@ public:
     jni::jdouble getMetersPerPixelAtLatitude(JNIEnv&, jni::jdouble, jni::jdouble);
 
     jni::Object<ProjectedMeters> projectedMetersForLatLng(JNIEnv&, jni::jdouble, jni::jdouble);
+
+    void updateMapBounds(JNIEnv&, jni::Object<VisibleRegion>, jni::Object<LatLng>);
 
     jni::Object<PointF> pixelForLatLng(JNIEnv&, jdouble, jdouble);
 

@@ -258,6 +258,8 @@ add_library(mbgl-android STATIC
     ${SRC_ROOT}/mapbox/platform/android/geometry/lat_lng_quad.hpp
     ${SRC_ROOT}/mapbox/platform/android/geometry/projected_meters.cpp
     ${SRC_ROOT}/mapbox/platform/android/geometry/projected_meters.hpp
+    ${SRC_ROOT}/mapbox/platform/android/geometry/visible_region.cpp
+    ${SRC_ROOT}/mapbox/platform/android/geometry/visible_region.hpp
 
     # GSon
     ${SRC_ROOT}/mapbox/platform/android/gson/json_array.cpp
