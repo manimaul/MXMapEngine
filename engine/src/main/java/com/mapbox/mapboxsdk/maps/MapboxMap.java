@@ -198,12 +198,6 @@ public final class MapboxMap {
     projectionSubject.onNext(projection);
   }
 
-  public Observable<VisibleRegion> visibleRegionObservable(Predicate<Projection> predicate) {
-    return projectionChangeObservable()
-        .filter(predicate)
-        .map(Projection::getVisibleRegion);
-  }
-
   public Observable<Projection> projectionChangeObservable() {
     return projectionSubject.hide();
   }
@@ -861,6 +855,10 @@ public final class MapboxMap {
     }
 
     transform.animateCamera(MapboxMap.this, update, durationMs, callback);
+  }
+
+  public void invalidate() {
+    invalidateCameraPosition();
   }
 
   /**

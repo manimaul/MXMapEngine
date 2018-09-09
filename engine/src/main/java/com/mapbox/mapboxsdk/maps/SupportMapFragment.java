@@ -12,8 +12,7 @@ import android.view.ViewGroup;
 
 import com.mapbox.mapboxsdk.utils.MapFragmentUtils;
 
-import java.util.ArrayList;
-import java.util.List;
+import io.reactivex.Single;
 
 /**
  * Support Fragment wrapper around a map view.
@@ -22,16 +21,9 @@ import java.util.List;
  * It's a wrapper around a view of a map to automatically handle the necessary life cycle needs.
  * Being a fragment, this component can be added to an activity's layout or can dynamically be added
  * using a FragmentManager.
- * </p>
- * <p>
- * To get a reference to the MapView, use {@link #getMapAsync(OnMapReadyCallback)}}
- * </p>
- *
- * @see #getMapAsync(OnMapReadyCallback)
  */
-public class SupportMapFragment extends Fragment implements OnMapReadyCallback {
+public class SupportMapFragment extends Fragment {
 
-  private final List<OnMapReadyCallback> mapReadyCallbackList = new ArrayList<>();
   private MapFragment.OnMapViewReadyCallback mapViewReadyCallback;
   private MapboxMap mapboxMap;
   private MapView map;
@@ -109,19 +101,10 @@ public class SupportMapFragment extends Fragment implements OnMapReadyCallback {
   public void onViewCreated(View view, Bundle savedInstanceState) {
     super.onViewCreated(view, savedInstanceState);
     map.onCreate(savedInstanceState);
-    map.getMapAsync(this);
 
     // notify listeners about MapView creation
     if (mapViewReadyCallback != null) {
       mapViewReadyCallback.onMapViewReady(map);
-    }
-  }
-
-  @Override
-  public void onMapReady(MapboxMap mapboxMap) {
-    this.mapboxMap = mapboxMap;
-    for (OnMapReadyCallback onMapReadyCallback : mapReadyCallbackList) {
-      onMapReadyCallback.onMapReady(mapboxMap);
     }
   }
 
@@ -188,19 +171,12 @@ public class SupportMapFragment extends Fragment implements OnMapReadyCallback {
   public void onDestroyView() {
     super.onDestroyView();
     map.onDestroy();
-    mapReadyCallbackList.clear();
   }
 
   /**
    * Sets a callback object which will be triggered when the MapboxMap instance is ready to be used.
-   *
-   * @param onMapReadyCallback The callback to be invoked.
    */
-  public void getMapAsync(@NonNull final OnMapReadyCallback onMapReadyCallback) {
-    if (mapboxMap == null) {
-      mapReadyCallbackList.add(onMapReadyCallback);
-    } else {
-      onMapReadyCallback.onMapReady(mapboxMap);
-    }
+  public Single<MapboxMap> getMapAsync() {
+    return map.getMapAsync();
   }
 }

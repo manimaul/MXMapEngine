@@ -22,6 +22,7 @@ import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.widget.FrameLayout;
 import android.widget.ZoomButtonsController;
+
 import com.mapbox.android.gestures.AndroidGesturesManager;
 import com.mapbox.mapboxsdk.R;
 import com.mapbox.mapboxsdk.annotations.Annotation;
@@ -41,20 +42,21 @@ import com.mapbox.mapboxsdk.offline.OfflineRegionDefinition;
 import com.mapbox.mapboxsdk.offline.OfflineTilePyramidRegionDefinition;
 import com.mapbox.mapboxsdk.storage.FileSource;
 import com.mapbox.mapboxsdk.utils.BitmapUtils;
-import com.mapbox.mapboxsdk.utils.Logger;
+import com.willkamp.MapboxReady;
 
-import javax.microedition.khronos.egl.EGLConfig;
-import javax.microedition.khronos.opengles.GL10;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import javax.microedition.khronos.egl.EGLConfig;
+import javax.microedition.khronos.opengles.GL10;
+
+import io.reactivex.Observable;
 import io.reactivex.Single;
-import io.reactivex.subjects.SingleSubject;
+import io.reactivex.subjects.BehaviorSubject;
 
 import static com.mapbox.mapboxsdk.maps.widgets.CompassView.TIME_MAP_NORTH_ANIMATION;
 import static com.mapbox.mapboxsdk.maps.widgets.CompassView.TIME_WAIT_IDLE;
@@ -398,9 +400,9 @@ public class MapView extends FrameLayout implements NativeMapView.ViewCallback {
    */
   @UiThread
   public void onDestroy() {
+    mapCallback.onMapDestroy();
     destroyed = true;
     onMapChangedListeners.clear();
-    mapCallback.clearOnMapReadyCallbacks();
 
     if (nativeMapView != null && hasSurface) {
       // null when destroying an activity programmatically mapbox-navigation-android/issues/503
@@ -647,30 +649,15 @@ public class MapView extends FrameLayout implements NativeMapView.ViewCallback {
     }
   }
 
-  /**
-   * Sets a callback object which will be triggered when the {@link MapboxMap} instance is ready to be used.
-   *
-   * @param callback The callback object that will be triggered when the map is ready to be used.
-   */
-  @UiThread
-  public void getMapAsync(final @NonNull OnMapReadyCallback callback) {
-    if (!mapCallback.isInitialLoad()) {
-      callback.onMapReady(mapboxMap);
-    } else {
-      mapCallback.addOnMapReadyCallback(callback);
-    }
+  public Observable<MapboxReady> getMapBoxReady() {
+    return mapCallback.mapboxReadySubject.hide();
   }
 
   public Single<MapboxMap> getMapAsync()  {
-    if (!mapCallback.isInitialLoad()) {
-      Logger.d(TAG, "map async using already initialized mabox map");
-      return Single.just(mapboxMap);
-    } else {
-      Logger.d(TAG, "map async using single subject");
-      SingleSubject<MapboxMap> subject = SingleSubject.create();
-      mapCallback.addOnMapReadyCallback(subject::onSuccess);
-      return subject;
-    }
+    return mapCallback.mapboxReadySubject.filter(it -> it.getMapboxMap() != null)
+        .take(1)
+        .map(MapboxReady::getMapboxMap)
+        .singleOrError();
   }
 
   private boolean isMapInitialized() {
@@ -683,10 +670,6 @@ public class MapView extends FrameLayout implements NativeMapView.ViewCallback {
 
   MapboxMap getMapboxMap() {
     return mapboxMap;
-  }
-
-  void setMapboxMap(MapboxMap mapboxMap) {
-    this.mapboxMap = mapboxMap;
   }
 
   /**
@@ -1132,8 +1115,8 @@ public class MapView extends FrameLayout implements NativeMapView.ViewCallback {
   private static class MapCallback implements OnMapChangedListener {
 
     private MapboxMap mapboxMap;
-    private final List<OnMapReadyCallback> onMapReadyCallbackList = new ArrayList<>();
     private boolean initialLoad = true;
+    private final BehaviorSubject<MapboxReady> mapboxReadySubject = BehaviorSubject.create();
 
     void attachMapboxMap(MapboxMap mapboxMap) {
       this.mapboxMap = mapboxMap;
@@ -1142,9 +1125,9 @@ public class MapView extends FrameLayout implements NativeMapView.ViewCallback {
     @Override
     public void onMapChanged(@MapChange int change) {
       if (change == DID_FINISH_LOADING_STYLE && initialLoad) {
-        initialLoad = false;
         mapboxMap.onPreMapReady();
         onMapReady();
+        initialLoad = false;
         mapboxMap.onPostMapReady();
       } else if (change == DID_FINISH_RENDERING_FRAME || change == DID_FINISH_RENDERING_FRAME_FULLY_RENDERED) {
         mapboxMap.onUpdateFullyRendered();
@@ -1154,27 +1137,13 @@ public class MapView extends FrameLayout implements NativeMapView.ViewCallback {
     }
 
     private void onMapReady() {
-      if (onMapReadyCallbackList.size() > 0) {
-        // Notify listeners, clear when done
-        Iterator<OnMapReadyCallback> iterator = onMapReadyCallbackList.iterator();
-        while (iterator.hasNext()) {
-          OnMapReadyCallback callback = iterator.next();
-          callback.onMapReady(mapboxMap);
-          iterator.remove();
-        }
+      if (initialLoad) {
+        mapboxReadySubject.onNext(new MapboxReady(mapboxMap));
       }
     }
 
-    boolean isInitialLoad() {
-      return initialLoad;
-    }
-
-    void addOnMapReadyCallback(OnMapReadyCallback callback) {
-      onMapReadyCallbackList.add(callback);
-    }
-
-    void clearOnMapReadyCallbacks() {
-      onMapReadyCallbackList.clear();
+    void onMapDestroy() {
+      mapboxReadySubject.onNext(new MapboxReady());
     }
   }
 }
