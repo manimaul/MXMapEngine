@@ -31,6 +31,7 @@ import com.mapbox.mapboxsdk.camera.CameraPosition;
 import com.mapbox.mapboxsdk.camera.CameraUpdateFactory;
 import com.mapbox.mapboxsdk.constants.MapboxConstants;
 import com.mapbox.mapboxsdk.constants.Style;
+import com.mapbox.mapboxsdk.geometry.LatLng;
 import com.mapbox.mapboxsdk.http.HTTPRequest;
 import com.mapbox.mapboxsdk.http.OfflineInterceptor;
 import com.mapbox.mapboxsdk.maps.renderer.MapRenderer;
@@ -658,6 +659,28 @@ public class MapView extends FrameLayout implements NativeMapView.ViewCallback {
         .take(1)
         .map(MapboxReady::getMapboxMap)
         .singleOrError();
+  }
+
+  public Observable<LatLng> singleTapObservable() {
+    return mapGestureDetector.singleTapObservable();
+  }
+
+  public Observable<LatLng> longTapObservable() {
+    return mapGestureDetector.longTapObservable();
+  }
+
+  /**
+   * Create an observable of touch events for {@link MapView}.
+   * <p>
+   * <em>Warning:</em> Values emitted by this observable are <b>mutable</b> and part of a shared
+   * object pool and thus are <b>not safe</b> to cache or delay reading (such as by observing
+   * on a different thread). If you want to cache or delay reading the items emitted then you must
+   * map values through a function which calls {@link MotionEvent#obtain(MotionEvent)} or
+   * {@link MotionEvent#obtainNoHistory(MotionEvent)} to create a copy.
+   * <p>
+   */
+  public Observable<MotionEvent> touchEventObservable() {
+    return mapGestureDetector.touchEventObservable();
   }
 
   private boolean isMapInitialized() {

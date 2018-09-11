@@ -31,6 +31,9 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import io.reactivex.Observable;
+import io.reactivex.subjects.PublishSubject;
+
 import static com.mapbox.mapboxsdk.maps.MapboxMap.OnCameraMoveStartedListener.REASON_API_ANIMATION;
 import static com.mapbox.mapboxsdk.maps.MapboxMap.OnCameraMoveStartedListener.REASON_API_GESTURE;
 
@@ -87,6 +90,9 @@ final class MapGestureDetector {
   private Animator scaleAnimator;
   private Animator rotateAnimator;
   private final List<Animator> scheduledAnimators = new ArrayList<>();
+  private final PublishSubject<LatLng> singleTapSubject = PublishSubject.create();
+  private final PublishSubject<LatLng> longTapSubject = PublishSubject.create();
+  private final PublishSubject<MotionEvent> touchSubject = PublishSubject.create();
 
   /**
    * Cancels scheduled velocity animations if user doesn't lift fingers within
@@ -191,6 +197,18 @@ final class MapGestureDetector {
     return focalPoint;
   }
 
+  Observable<LatLng> singleTapObservable() {
+    return singleTapSubject.hide();
+  }
+
+  Observable<LatLng> longTapObservable() {
+    return longTapSubject.hide();
+  }
+
+  Observable<MotionEvent> touchEventObservable() {
+    return touchSubject.hide();
+  }
+
   /**
    * Called when user touches the screen, all positions are absolute.
    * <p>
@@ -205,6 +223,8 @@ final class MapGestureDetector {
     if (motionEvent == null) {
       return false;
     }
+
+    touchSubject.onNext(motionEvent);
 
     // Check and ignore non touch or left clicks
     if ((motionEvent.getButtonState() != 0) && (motionEvent.getButtonState() != MotionEvent.BUTTON_PRIMARY)) {
@@ -332,6 +352,7 @@ final class MapGestureDetector {
     public boolean onSingleTapConfirmed(MotionEvent motionEvent) {
       PointF tapPoint = new PointF(motionEvent.getX(), motionEvent.getY());
       boolean tapHandled = annotationManager.onTap(tapPoint);
+      singleTapSubject.onNext(projection.fromScreenLocation(tapPoint));
 
       if (!tapHandled) {
         if (uiSettings.isDeselectMarkersOnTap()) {
@@ -871,25 +892,29 @@ final class MapGestureDetector {
 
   void notifyOnMapClickListeners(PointF tapPoint) {
     // deprecated API
+    LatLng latLng = projection.fromScreenLocation(tapPoint);
+    singleTapSubject.onNext(latLng);
     if (onMapClickListener != null) {
-      onMapClickListener.onMapClick(projection.fromScreenLocation(tapPoint));
+      onMapClickListener.onMapClick(latLng);
     }
 
     // new API
     for (MapboxMap.OnMapClickListener listener : onMapClickListenerList) {
-      listener.onMapClick(projection.fromScreenLocation(tapPoint));
+      listener.onMapClick(latLng);
     }
   }
 
   void notifyOnMapLongClickListeners(PointF longClickPoint) {
     // deprecated API
+    LatLng latLng = projection.fromScreenLocation(longClickPoint);
+    longTapSubject.onNext(latLng);
     if (onMapLongClickListener != null) {
-      onMapLongClickListener.onMapLongClick(projection.fromScreenLocation(longClickPoint));
+      onMapLongClickListener.onMapLongClick(latLng);
     }
 
     // new API
     for (MapboxMap.OnMapLongClickListener listener : onMapLongClickListenerList) {
-      listener.onMapLongClick(projection.fromScreenLocation(longClickPoint));
+      listener.onMapLongClick(latLng);
     }
   }
 
